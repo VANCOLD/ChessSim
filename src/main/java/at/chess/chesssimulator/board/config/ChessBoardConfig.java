@@ -3,6 +3,8 @@ package at.chess.chesssimulator.board.config;
 import javafx.scene.paint.Color;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +14,8 @@ import java.util.Properties;
 @AllArgsConstructor
 public class ChessBoardConfig {
 
+    protected static final Logger logger = LoggerFactory.getLogger(ChessBoardConfig.class);
+
     private static final int   TILE_WIDTH    = 70;
     private static final int   TILE_HEIGHT = 70;
     private static final int   ROWS = 8;
@@ -20,7 +24,7 @@ public class ChessBoardConfig {
     private static final Color TILE_COLOR_2 = Color.web("#A17960");
     private static final Color SELECTED_TILE_COLOR = Color.web("#61673F");
     private static final Color POSSIBLE_MOVE_COLOR = Color.web("#7A8254");
-
+    private static final String PLACEHOLDER_IMAGE = "/pieces/placeholder.png";
 
     private static final String TILE_WIDTH_NAME  = "tile_width";
     private static final String TILE_HEIGHT_NAME = "tile_height";
@@ -30,6 +34,7 @@ public class ChessBoardConfig {
     private static final String TILE_COLOR_2_NAME = "tile_color_2";
     private static final String SELECTED_TILE_COLOR_NAME = "selected_tile_color";
     private static final String POSSIBLE_MOVE_COLOR_NAME = "possible_move_color";
+    private static final String PLACEHOLDER_IMAGE_NAME = "placeholder_image";
 
     private static final String CONFIG_LOCATION = "./config/board.config";
 
@@ -40,9 +45,13 @@ public class ChessBoardConfig {
     @Getter
     private static Color tileColor1, tileColor2, selectedTileColor, possibleMoveColor;
 
+    @Getter
+    private static String placeholderImage;
+
 
     static {
 
+        logger.info("Initializing ChessBoardConfig (static block)");
         tileWidth = TILE_WIDTH;
         tileHeight = TILE_HEIGHT;
         rows = ROWS;
@@ -51,6 +60,11 @@ public class ChessBoardConfig {
         tileColor2 = TILE_COLOR_2;
         selectedTileColor = SELECTED_TILE_COLOR;
         possibleMoveColor = POSSIBLE_MOVE_COLOR;
+        placeholderImage = PLACEHOLDER_IMAGE;
+
+        logger.info("Legend: tileWidth - tileHeight - rows - cols - tileColor1 - tileColor2 - selectedTileColor - possibleMoveColor");
+        logger.info("Default values: {} - {} - {} - {} - {} - {} - {} - {}", tileWidth, tileHeight, rows, cols,
+                tileColor1, tileColor2, selectedTileColor, possibleMoveColor);
 
         loadConfig();
     }
@@ -59,14 +73,17 @@ public class ChessBoardConfig {
      * Method is called on startup; If a config is found it simply overwrites the default values set by the static block!
      */
     private static void loadConfig() {
+
+        logger.info("Trying to load config from {}", System.getProperty("user.dir") + CONFIG_LOCATION);
         String currentDir = System.getProperty("user.dir");
         File configFile = new File(currentDir + CONFIG_LOCATION);
 
         if (!configFile.exists()) {
-            System.out.println("Config file not found in " + CONFIG_LOCATION + ". Using default configuration.");
+            logger.warn("Config file not found in {}. Using default configuration.",  CONFIG_LOCATION);
             return;
         }
 
+        logger.info("Found config, reading contents");
         try (FileInputStream input = new FileInputStream(configFile)) {
             Properties prop = new Properties();
             prop.load(input);
@@ -80,10 +97,11 @@ public class ChessBoardConfig {
             tileColor2 = Color.web(prop.getProperty(TILE_COLOR_2_NAME, tileColor1.toString()));
             selectedTileColor = Color.web(prop.getProperty(SELECTED_TILE_COLOR_NAME, tileColor1.toString()));
             possibleMoveColor = Color.web(prop.getProperty(POSSIBLE_MOVE_COLOR_NAME, tileColor1.toString()));
+            placeholderImage  = prop.getProperty(PLACEHOLDER_IMAGE_NAME);
 
-            System.out.println("Config loaded from external file.");
+            logger.info("Config loaded from external file.");
         } catch (IOException | NumberFormatException ex) {
-            System.err.println("Error loading configuration from external file. Using default values. " + ex.getMessage());
+            logger.error("Error loading configuration from external file. Using default values. ");
         }
     }
 }

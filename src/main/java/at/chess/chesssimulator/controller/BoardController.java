@@ -7,6 +7,8 @@ import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
 import javafx.fxml.FXML;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.util.List;
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
 
 public class BoardController {
+
+    protected static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     private ChessBoard chessBoard;
     private ChessBoardTilePane selectedTile;
@@ -76,9 +80,11 @@ public class BoardController {
 
     }
 
-
     private void loadBoard() {
+
         String csvFile = "/config/default_layout.csv";
+        logger.info("Loading piece placements from {}", csvFile);
+
         String line;
         String csvSplitBy = ";";
 
@@ -87,21 +93,25 @@ public class BoardController {
             PieceColor color;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(csvSplitBy);
+                logger.info("Reading line from csv: {}", line);
                 color = PieceColor.getPieceColor(Integer.parseInt(values[0]));
 
                 for (int i = 1; i < values.length; i++) {
 
                     PieceType type = PieceType.getPieceType(values[i].charAt(0));
-                    int col = Integer.parseInt("" + values[i].charAt(1));
-                    int row = Integer.parseInt("" + values[i].charAt(2));
+                    int row = Integer.parseInt("" + values[i].charAt(1));
+                    int col = Integer.parseInt("" + values[i].charAt(2));
                     ChessPiece piece = ChessPiece.generateChessPiece(color,type);
                     chessBoardPane.setImageOfTile(row, col, piece.getImage());
                     chessBoard.placePiece(row, col, piece);
+                    logger.info("Placing piece {} {} row: {} - col: {}", color.name(), type.name(), row, col);
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("An error occured while reading data from the csv {}", csvFile);
         }
+
+        logger.info("Finished loading piece placements from the csv: {}", csvFile);
     }
 
 }

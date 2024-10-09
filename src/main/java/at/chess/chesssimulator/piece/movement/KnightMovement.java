@@ -9,7 +9,7 @@ import java.util.List;
 import static at.chess.chesssimulator.board.utils.Directions.*;
 import static at.chess.chesssimulator.board.utils.PositionUtils.*;
 
-public class KnightMovement implements MovementStrategy {
+public class KnightMovement extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
@@ -68,6 +68,8 @@ public class KnightMovement implements MovementStrategy {
         if(isInBounds(rightDown) && !board.isOccupied(rightDown)) {
             possiblePositions.add(rightDown);
         }
+
+        logger.debug("Knight movement - found the following possible moves: {}", possiblePositions);
 
         return possiblePositions;
     }

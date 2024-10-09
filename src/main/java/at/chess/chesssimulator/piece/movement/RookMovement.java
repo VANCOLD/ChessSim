@@ -12,7 +12,8 @@ public class RookMovement extends AbstractStrategy {
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
 
-        List<Position> bufferList = new ArrayList<>();
+        List<Position> possiblePositions = new ArrayList<>();
+
         int pieceX = curPos.getRow();
         int pieceY = curPos.getCol();
         int pieceXLower = PositionUtils.getBound(Directions.LEFT, curPos).getRow();
@@ -20,20 +21,28 @@ public class RookMovement extends AbstractStrategy {
         int pieceYLower = PositionUtils.getBound(Directions.UP, curPos).getCol();
         int pieceYUpper = PositionUtils.getBound(Directions.DOWN, curPos).getCol();
 
+        logger.debug("Rook movement - x-axis lower bound {} / upper bound {}", pieceXLower, pieceXUpper);
+        logger.debug("Rook movement - y-axis lower bound {} / upper bound {}", pieceYLower, pieceYUpper);
+
+
         // Getting all positions in the same row
         for (int i = pieceXLower; i <= pieceXUpper; i++) {
-            bufferList.add(new Position(i,pieceY));
+            possiblePositions.add(new Position(i,pieceY));
         }
 
         // Getting all position in the same col
         for (int i = pieceYLower; i <= pieceYUpper; i++) {
-            bufferList.add(new Position(pieceX, i));
+            possiblePositions.add(new Position(pieceX, i));
         }
 
         // Removing the place where the rook is standing
-        bufferList.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
+        possiblePositions.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
                                     && toCheck.getCol() == curPos.getCol());
 
-        return bufferList;
+
+        logger.debug("Rook movement - found the following possible moves: {}", possiblePositions);
+
+
+        return possiblePositions;
     }
 }

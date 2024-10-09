@@ -13,6 +13,7 @@ public class BishopMovement extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
+        
         List<Position> bufferList = new ArrayList<>();
 
         // Diagonal Direction
@@ -23,12 +24,17 @@ public class BishopMovement extends AbstractStrategy {
         Position dia1Upper = getBound(dia1OppDir, curPos);
         dia1Upper = addVector(dia1Upper, dia1AddVector); // the bound must be inclusive!
 
+        logger.debug("Bishop movement - Diagonal1 lower bound {} / upper bound {}", dia1Lower, dia1Upper);
+
         Directions dia2Dir = DOWN_LEFT;
         Directions dia2OppDir = getOppositeDirection(dia2Dir);
         Position dia2AddVector = getOppositeDirectionAsVector(dia2Dir);
         Position dia2Lower = getBound(dia2Dir, curPos);
         Position dia2Upper = getBound(dia2OppDir, curPos);
         dia2Upper = addVector(dia2Upper, dia2AddVector); // the bound must be inclusive!
+
+        logger.debug("Bishop movement - Diagonal2 lower bound {} / upper bound {}", dia2Lower, dia2Upper);
+
 
         Position posBuff = new Position(dia1Lower.getRow(), dia1Lower.getCol());
         do {
@@ -48,6 +54,8 @@ public class BishopMovement extends AbstractStrategy {
         // Removing the place where the rook is standing
         bufferList.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
                 && toCheck.getCol() == curPos.getCol());
+
+        logger.debug("Bishop movement - found the following possible moves: {}", bufferList);
 
         return bufferList;
     }

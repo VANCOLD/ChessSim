@@ -1,6 +1,8 @@
 package at.chess.chesssimulator.board;
 
 import at.chess.chesssimulator.piece.ChessPiece;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import lombok.Setter;
 
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
@@ -10,8 +12,9 @@ import static at.chess.chesssimulator.board.utils.PositionUtils.isInBounds;
 @Setter
 public class ChessBoard {
 
-    private Position[][] board; // 8x8 array for the chessboard
+    private static final Logger logger = LoggerFactory.getLogger(ChessBoard.class);
 
+    private Position[][] board; // 8x8 array for the chessboard
     private static ChessBoard instance;
 
     private ChessBoard() {
@@ -20,10 +23,11 @@ public class ChessBoard {
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
-                var position = new Position(i,j);
+                var position = new Position(i, j);
                 board[i][j] = position;
             }
         }
+        logger.info("Created ChessBoard with {} rows and {} columns", getRows(), getCols());
     }
 
     public static ChessBoard getInstance() {

@@ -14,8 +14,7 @@ public class QueenMovement extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
-
-        List<Position> possiblePositions = new ArrayList<>();
+        List<Position> bufferList = new ArrayList<>();
 
         int pieceX = curPos.getRow();
         int pieceY = curPos.getCol();
@@ -24,17 +23,14 @@ public class QueenMovement extends AbstractStrategy {
         int pieceYLower = PositionUtils.getBound(Directions.UP, curPos).getCol();
         int pieceYUpper = PositionUtils.getBound(Directions.DOWN, curPos).getCol();
 
-        logger.debug("Queen movement - x-axis lower bound {} / upper bound {}", pieceXLower, pieceXUpper);
-        logger.debug("Queen movement - y-axis lower bound {} / upper bound {}", pieceYLower, pieceYUpper);
-
         // Getting all positions in the same row
         for (int i = pieceXLower; i <= pieceXUpper; i++) {
-            possiblePositions.add(new Position(i,pieceY));
+            bufferList.add(new Position(i,pieceY));
         }
 
         // Getting all position in the same col
         for (int i = pieceYLower; i <= pieceYUpper; i++) {
-            possiblePositions.add(new Position(pieceX, i));
+            bufferList.add(new Position(pieceX, i));
         }
 
         // Diagonal Direction
@@ -45,8 +41,6 @@ public class QueenMovement extends AbstractStrategy {
         Position dia1Upper = getBound(dia1OppDir, curPos);
         dia1Upper = addVector(dia1Upper, dia1AddVector); // the bound must be inclusive!
 
-        logger.debug("Queen movement - Diagonal1 lower bound {} / upper bound {}", dia1Lower, dia1Upper);
-
         Directions dia2Dir = DOWN_LEFT;
         Directions dia2OppDir = getOppositeDirection(dia2Dir);
         Position dia2AddVector = getOppositeDirectionAsVector(dia2Dir);
@@ -54,18 +48,15 @@ public class QueenMovement extends AbstractStrategy {
         Position dia2Upper = getBound(dia2OppDir, curPos);
         dia2Upper = addVector(dia2Upper, dia2AddVector); // the bound must be inclusive!
 
-        logger.debug("Queen movement - Diagonal2 lower bound {} / upper bound {}", dia2Lower, dia2Upper);
-
-
         Position posBuff = new Position(dia1Lower.getRow(), dia1Lower.getCol());
         do {
-            possiblePositions.add(posBuff);
+            bufferList.add(posBuff);
             posBuff = addVector(dia1AddVector, posBuff);
         } while(isInBounds(posBuff) && !sameCoordinates(dia1Upper, posBuff));
 
         posBuff = new Position(dia2Lower.getRow(), dia2Lower.getCol());
         do {
-            possiblePositions.add(posBuff);
+            bufferList.add(posBuff);
             posBuff = addVector(dia2AddVector, posBuff);
         } while(isInBounds(posBuff) && !sameCoordinates(dia2Upper, posBuff));
         // sameCoordinates tells us if cords are the same, we break out of the loop, but the bounds stop a position before we hit a piece!
@@ -73,11 +64,9 @@ public class QueenMovement extends AbstractStrategy {
 
 
         // Removing the place where the rook is standing
-        possiblePositions.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
+        bufferList.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
                 && toCheck.getCol() == curPos.getCol());
 
-        logger.debug("Queen movement - found the following possible moves: {}", possiblePositions);
-
-        return possiblePositions;
+        return bufferList;
     }
 }

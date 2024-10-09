@@ -4,14 +4,12 @@ import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
-import lombok.Getter;
 
 
 public class ChessBoardTilePane extends StackPane {
@@ -19,13 +17,9 @@ public class ChessBoardTilePane extends StackPane {
 
     private final Rectangle background;
     private final Circle indicator;
-    private final Color defaultColor;
-
-    @Getter
-    private ImageView image;
-
-    @Getter
     private boolean indicatorOn;
+    private final Color defaultColor;
+    private ImageView image;
 
     public ChessBoardTilePane(int row, int col) {
         super();
@@ -35,13 +29,12 @@ public class ChessBoardTilePane extends StackPane {
         this.image = null;
 
         this.background = new Rectangle(getTileWidth(), getTileHeight());
-        this.background.setFill(this.defaultColor);
         this.background.setMouseTransparent(true);
+        this.background.setFill(this.defaultColor);
 
-        this.indicator = new Circle(getTileWidth() / 8.0);
+        this.indicator = new Circle(getTileWidth() / 7.0);
         this.indicator.setMouseTransparent(true);
         this.indicator.setFill(Color.TRANSPARENT);
-        this.indicator.setMouseTransparent(true);
 
         this.getChildren().addAll(this.background, this.indicator);
 
@@ -73,6 +66,18 @@ public class ChessBoardTilePane extends StackPane {
         this.background.setFill(color);
     }
 
+    public void setImage(ImageView image) {
+        if (this.image != null) {
+            this.image.setMouseTransparent(true);
+        }
+        this.image = image;
+        this.getChildren().add(this.image);
+    }
+
+    public void resetColor() {
+        this.background.setFill(this.defaultColor);
+    }
+
     public void toggleIndicator() {
         this.indicatorOn = !this.indicatorOn;
 
@@ -81,35 +86,5 @@ public class ChessBoardTilePane extends StackPane {
         } else {
             this.indicator.setFill(Color.TRANSPARENT);
         }
-    }
-
-    public boolean defaultColorSet() {
-        return this.background.getFill().equals(this.defaultColor);
-    }
-
-    public void opacity(double opacity) {
-        opacity = Math.clamp(opacity, 0.0, 1.0);
-        this.image.setOpacity(opacity);
-    }
-
-    public void setImage(ImageView image) {
-        this.image = image;
-        this.image.setMouseTransparent(true);
-        this.getChildren().add(image);
-    }
-
-    public void resetImage() {
-        this.getChildren().remove(this.image);
-        this.image = null;
-    }
-
-    public void resetOpacity() {
-        this.image.setOpacity(1.0);
-    }
-
-    public void mouseDragged(MouseDragEvent drag) {
-        int rowDrag = (int) drag.getX() / getTileWidth();
-        int colDrag = (int) drag.getY() / getTileHeight();
-        System.out.println("Dragged mouse over field (" + rowDrag + "/" + colDrag + ")");
     }
 }

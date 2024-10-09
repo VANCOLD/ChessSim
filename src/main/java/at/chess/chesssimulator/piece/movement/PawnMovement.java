@@ -15,9 +15,7 @@ public class PawnMovement extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position currentPosition) {
-
-        List<Position> possiblePositions = new ArrayList<>();
-
+        List<Position> possibleMoves = new ArrayList<>();
         PieceColor pieceColor = currentPosition.getPiece().getColor();
         Position direction = pieceColor == BLACK ? UP.getVector() : DOWN.getVector();
         Position diagonalLeftDir = LEFT.getVector();
@@ -26,19 +24,17 @@ public class PawnMovement extends AbstractStrategy {
         Position move2  = addVector(move1,direction);
 
         if(isInBounds(move1) && !chessBoard.isOccupied(move1)) {
-            possiblePositions.add(move1);
+            possibleMoves.add(move1);
         }
 
         var leftDiagonalCheck = addVector(diagonalLeftDir,move2);
         var rightDiagonalCheck = addVector(diagonalRightDir,move2);
-        if (isInBounds(move2) && !chessBoard.isOccupiedByColor(move2, getOppositeColor(pieceColor))
-          && !chessBoard.isOccupiedByColor(leftDiagonalCheck, getOppositeColor(pieceColor))
-          && !chessBoard.isOccupiedByColor(rightDiagonalCheck, getOppositeColor(pieceColor))) {
-            possiblePositions.add(move2);
+        if (isInBounds(move2) && !chessBoard.isOccupied(move2)
+          && !chessBoard.isOccupied(leftDiagonalCheck)
+          && !chessBoard.isOccupied(rightDiagonalCheck)) {
+            possibleMoves.add(move2);
         }
 
-        logger.debug("Pawn movement - found the following possible moves: {}", possiblePositions);
-
-        return possiblePositions;
+        return possibleMoves;
     }
 }

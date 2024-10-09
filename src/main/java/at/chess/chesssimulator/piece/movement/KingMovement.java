@@ -14,15 +14,12 @@ public class KingMovement extends AbstractStrategy {
     public List<Position> getPossibleMoves(Position curPos) {
 
         List<Position> directions = Arrays.stream(Directions.values()).map(Directions::getVector).toList();
-        List<Position> bufferList = directions
-                                    .stream()
-                                    .map(pos -> PositionUtils.addVector(pos,curPos))
-                                    .filter(PositionUtils::isInBounds)
-                                    .filter(Predicate.not(chessBoard::isOccupied))
-                                    .toList();
 
-        logger.debug("King movement - found the following possible moves: {}", bufferList);
-
-        return bufferList;
+        return directions
+                 .stream()
+                 .map(pos -> PositionUtils.addVector(pos,curPos))
+                 .filter(PositionUtils::isInBounds)
+                 .filter(Predicate.not(chessBoard::isOccupied))
+                 .toList();
     }
 }

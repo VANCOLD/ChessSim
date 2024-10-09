@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<?import javafx.scene.layout.GridPane?>
-
-
-<GridPane fx:id="chessBoard" xmlns:fx="http://javafx.com/fxml" fx:controller="at.chess.chesssimulator.MainController">
-    <!-- used to store the chess tiles -->
-</GridPane>

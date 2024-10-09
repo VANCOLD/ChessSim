@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import at.chess.chesssimulator.board.ui.ChessBoardPane?>
+
+<ChessBoardPane fx:id="chessBoardPane" xmlns:fx="http://javafx.com/fxml" fx:controller="at.chess.chesssimulator.controller.BoardController">
+    <!-- used to store the chess tiles -->
+</ChessBoardPane>

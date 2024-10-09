@@ -1,7 +1,9 @@
 module at.chess.chesssimulator {
+        requires org.slf4j;
         requires javafx.controls;
         requires javafx.fxml;
         requires static lombok;
+    requires ch.qos.logback.classic;
 
     // Export the board package for FXML access
         exports at.chess.chesssimulator.board to javafx.fxml;

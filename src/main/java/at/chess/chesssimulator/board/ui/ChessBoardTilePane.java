@@ -71,7 +71,11 @@ public class ChessBoardTilePane extends StackPane {
             this.image.setMouseTransparent(true);
         }
         this.image = image;
-        this.getChildren().add(this.image);
+
+        // If the placeholder fails aswell, this will be treated as a field with a piece, but we can't display it
+        if(this.image != null) {
+            this.getChildren().add(this.image);
+        }
     }
 
     public void resetColor() {

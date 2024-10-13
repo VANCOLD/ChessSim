@@ -4,28 +4,45 @@ import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
 import at.chess.chesssimulator.piece.movement.*;
-import at.chess.chesssimulator.piece.utils.PngLoader;
+import at.chess.chesssimulator.utils.PngLoader;
+import javafx.scene.image.Image;
 import lombok.Getter;
-
 import javafx.scene.image.ImageView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 
+/**
+ * Represents a chess piece on the chessboard, encapsulating its color, type, movement strategy, and visual representation.
+ * <p>
+ * The class provides methods for generating a chess piece and determining its possible movements based on its type.
+ * </p>
+ */
 @Getter
 public class ChessPiece {
 
+    protected static final Logger logger = LoggerFactory.getLogger(ChessPiece.class);
+
+    /** The visual representation of the chess piece. */
     private final ImageView image;
+
+    /** The strategy used to determine valid movements for this chess piece. */
     protected final MovementStrategy movementStrategy;
+
+    /** The color of the chess piece (either black or white). */
     private final PieceColor color;
+
+    /** The type of the chess piece (e.g., pawn, rook, etc.). */
     private final PieceType type;
 
     /**
-     * Used to generate ChessPieces. Since they are always the same, we wrap them in a generate function.
-     * Use generate ChessPiece to get a valid ChessPiece
+     * Constructs a chess piece with the specified properties.
      *
-     * @param image image of the chess piece for display
-     * @param movementStrategy the movement strategy the piece is using
-     * @param color color of the chess piece
-     * @param type type of the chess piece (pawn, rook, bishop, ... etc.)
+     * @param image            The image representation of the chess piece.
+     * @param movementStrategy The movement strategy associated with this piece.
+     * @param color            The color of the chess piece.
+     * @param type             The type of the chess piece.
      */
     protected ChessPiece(ImageView image, MovementStrategy movementStrategy, PieceColor color, PieceType type) {
         this.image = image;
@@ -34,9 +51,22 @@ public class ChessPiece {
         this.type = type;
     }
 
+    /**
+     * Generates a new chess piece based on the specified color and type.
+     * <p>
+     * This method loads the corresponding image for the piece and initializes its movement strategy.
+     * </p>
+     *
+     * @param color The color of the chess piece.
+     * @param type  The type of the chess piece.
+     * @return A new instance of {@link ChessPiece}.
+     */
     public static ChessPiece generateChessPiece(PieceColor color, PieceType type) {
-
-        ImageView image = PngLoader.loadImage(color, type);
+        logger.info("Generating new piece {} {}", color.name().toLowerCase(), type.name().toLowerCase());
+        String colorName = color.name().toLowerCase();
+        String pieceName = type.name().toLowerCase();
+        Image pieceImage = PngLoader.getInstance().getImage(colorName, "_", pieceName, ".png");
+        ImageView image = new ImageView(pieceImage);
 
         MovementStrategy movement = switch(type) {
             case PAWN -> new PawnMovement();
@@ -50,6 +80,12 @@ public class ChessPiece {
         return new ChessPiece(image, movement, color, type);
     }
 
+    /**
+     * Retrieves the possible movement range for the chess piece based on its current position.
+     *
+     * @param posToCheck The position of the piece for which to calculate the movement range.
+     * @return A list of possible {@link Position} instances that the piece can move to.
+     */
     public List<Position> getMovementRange(Position posToCheck) {
         return this.movementStrategy.getPossibleMoves(posToCheck);
     }

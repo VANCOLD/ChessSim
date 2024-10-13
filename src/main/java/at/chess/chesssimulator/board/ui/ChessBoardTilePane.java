@@ -10,6 +10,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
+import lombok.Getter;
 
 
 public class ChessBoardTilePane extends StackPane {
@@ -19,6 +20,8 @@ public class ChessBoardTilePane extends StackPane {
     private final Circle indicator;
     private boolean indicatorOn;
     private final Color defaultColor;
+
+    @Getter
     private ImageView image;
 
     public ChessBoardTilePane(int row, int col) {
@@ -72,7 +75,7 @@ public class ChessBoardTilePane extends StackPane {
         }
         this.image = image;
 
-        // If the placeholder fails aswell, this will be treated as a field with a piece, but we can't display it
+        // If the placeholder fails as well, this will be treated as a field with a piece, but we can't display it
         if(this.image != null) {
             this.getChildren().add(this.image);
         }
@@ -90,5 +93,14 @@ public class ChessBoardTilePane extends StackPane {
         } else {
             this.indicator.setFill(Color.TRANSPARENT);
         }
+    }
+
+    public void opacity(double opacity) {
+        opacity = Math.clamp(opacity, 0.0, 1.0);
+        this.image.setOpacity(opacity);
+    }
+
+    public void resetOpacity() {
+        this.image.setOpacity(1.0);
     }
 }

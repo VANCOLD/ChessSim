@@ -1,22 +1,56 @@
 package at.chess.chesssimulator.piece.enums;
 
 /**
- * Simple representation of chess pieces. Used for IO tasks and object generation
+ * Enum representing the different types of chess pieces.
+ * <p>
+ * The types include:
+ * <ul>
+ *   <li>{@link #PAWN}</li>
+ *   <li>{@link #ROOK}</li>
+ *   <li>{@link #KNIGHT}</li>
+ *   <li>{@link #BISHOP}</li>
+ *   <li>{@link #QUEEN}</li>
+ *   <li>{@link #KING}</li>
+ * </ul>
+ * </p>
  */
 public enum PieceType {
-    PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING;
+
+    /** Represents a pawn chess piece. */
+    PAWN,
+
+    /** Represents a rook chess piece. */
+    ROOK,
+
+    /** Represents a knight chess piece. */
+    KNIGHT,
+
+    /** Represents a bishop chess piece. */
+    BISHOP,
+
+    /** Represents a queen chess piece. */
+    QUEEN,
+
+    /** Represents a king chess piece. */
+    KING;
 
     /**
-     * Maps a character to a Piece; Used to load scenarios and default layout.
-     * n = knight
-     * b = bishop
-     * p = pawn
-     * r = rook
-     * q = queen
-     * k = king
+     * Returns the corresponding {@code PieceType} based on the provided character representation.
+     * <p>
+     * The character values are mapped as follows:
+     * <ul>
+     *   <li>'p' - {@link #PAWN}</li>
+     *   <li>'r' - {@link #ROOK}</li>
+     *   <li>'n' - {@link #KNIGHT}</li>
+     *   <li>'b' - {@link #BISHOP}</li>
+     *   <li>'q' - {@link #QUEEN}</li>
+     *   <li>'k' - {@link #KING}</li>
+     * </ul>
+     * </p>
      *
-     * @param type char; returns the corresponding PieceType for a character
-     * @return returns the PieceType corresponding to a character; Throws an error if a wrong character is supplied
+     * @param type A character representing the type of the chess piece.
+     * @return The corresponding {@code PieceType}.
+     * @throws IllegalStateException if the provided character does not match any piece type.
      */
     public static PieceType getPieceType(char type) {
         return switch(type) {

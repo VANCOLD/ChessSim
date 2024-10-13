@@ -1,6 +1,5 @@
 package at.chess.chesssimulator.board.ui;
 
-import at.chess.chesssimulator.board.ChessBoard;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import org.slf4j.Logger;
@@ -22,6 +21,7 @@ public class ChessBoardPane extends GridPane {
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 var tile = new ChessBoardTilePane(i,j);
+                tile.setMouseTransparent(true);
                 tiles[i][j] = tile;
                 this.add(tile,i,j);
             }

@@ -1,6 +1,5 @@
 package at.chess.chesssimulator;
 
-import at.chess.chesssimulator.board.config.ChessBoardConfig;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;

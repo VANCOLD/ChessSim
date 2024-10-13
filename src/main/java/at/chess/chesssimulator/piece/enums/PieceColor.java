@@ -1,18 +1,29 @@
 package at.chess.chesssimulator.piece.enums;
 
 /**
- * Simple representation of colors of pieces. Used for IO tasks and object generation
+ * Enum representing the color of a chess piece, either {@link #BLACK} or {@link #WHITE}.
  */
 public enum PieceColor {
-    BLACK, WHITE;
+
+    /** The black color for chess pieces. */
+    BLACK,
+
+    /** The white color for chess pieces. */
+    WHITE;
 
     /**
-     * Maps an integer to a Color; Used to load scenarios and default layout.
-     * 0 = black
-     * 1 = white
+     * Returns the corresponding {@code PieceColor} based on the provided integer value.
+     * <p>
+     * The integer values are mapped as follows:
+     * <ul>
+     *   <li>0 - {@link #BLACK}</li>
+     *   <li>1 - {@link #WHITE}</li>
+     * </ul>
+     * </p>
      *
-     * @param color int; a value between 0-1 (int)
-     * @return Returns either black (0) or white (1), if any other number is given, this method will throw an error
+     * @param color An integer representing the piece color, where 0 represents black and 1 represents white.
+     * @return The corresponding {@code PieceColor}.
+     * @throws IllegalStateException if the provided value is not 0 or 1.
      */
     public static PieceColor getPieceColor(int color) {
         return switch(color) {

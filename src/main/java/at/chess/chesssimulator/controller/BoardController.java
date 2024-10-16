@@ -1,13 +1,16 @@
 package at.chess.chesssimulator.controller;
 
 import at.chess.chesssimulator.board.ChessBoard;
+import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.ui.ChessBoardPane;
 import at.chess.chesssimulator.board.ui.ChessBoardTilePane;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
 import javafx.fxml.FXML;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.Pane;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
+import static at.chess.chesssimulator.board.utils.PositionUtils.sameCoordinates;
 import static at.chess.chesssimulator.utils.Constants.CSV_FILE_PATH;
 
 public class BoardController {
@@ -24,115 +28,127 @@ public class BoardController {
     protected static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
     private ChessBoard chessBoard;
-    private ChessBoardTilePane selectedTile;
     private List<ChessBoardTilePane> possibleTiles;
+    private List<Position> possiblePositions;
 
+    private ChessBoardTilePane selectedTile;
+    private Position selectedPosition;
+    private ChessBoardTilePane lastTile = null;
+    private Position lastPosition;
+
+    @FXML
+    private Pane container;
+    @FXML
+    private ImageView draggedImage;
     @FXML
     private ChessBoardPane chessBoardPane;
 
     @FXML
     public void initialize() {
-
-        this.chessBoard   = ChessBoard.getInstance();
-        this.selectedTile = null;
-        this.possibleTiles = null;
-        this.loadBoard();
-
-        this.chessBoardPane.setOnMouseClicked(this::mouseClicked);
-        this.chessBoardPane.setOnMouseReleased(this::mouseReleased);
-        this.chessBoardPane.setOnMouseDragged(this::mouseDragged);
-
+        chessBoard = ChessBoard.getInstance();
+        loadBoard();
+        setMouseHandlers();
     }
 
     private void loadBoard() {
 
-        String csvFile = CSV_FILE_PATH;
-        logger.info("Loading piece placements from {}", csvFile);
+        logger.info("Loading piece placements from {}", CSV_FILE_PATH);
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(CSV_FILE_PATH)))) {
 
-        String line;
-        String csvSplitBy = ";";
-
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(csvFile)))) {
-
-            PieceColor color;
+            String line;
             while ((line = br.readLine()) != null) {
-                String[] values = line.split(csvSplitBy);
                 logger.info("Reading line from csv: {}", line);
-                color = PieceColor.getPieceColor(Integer.parseInt(values[0]));
-
-                for (int i = 1; i < values.length; i++) {
-
-                    PieceType type = PieceType.getPieceType(values[i].charAt(0));
-                    int row = Integer.parseInt("" + values[i].charAt(1));
-                    int col = Integer.parseInt("" + values[i].charAt(2));
-                    ChessPiece piece = ChessPiece.generateChessPiece(color,type);
-
-                    chessBoardPane.setImageOfTile(row, col, piece.getImage());
-                    chessBoard.placePiece(row, col, piece);
-                    logger.info("Placing piece {} {} row: {} - col: {}", color.name(), type.name(), row, col);
-                }
+                initializePieces(line.split(";"));
             }
-        } catch (IOException e) {
-            logger.error("An error occurred while reading data from the csv {}", csvFile);
-        }
 
-        logger.info("Finished loading piece placements from the csv: {}", csvFile);
+        } catch (IOException e) {
+            logger.error("An error occurred while reading data from the csv {}", CSV_FILE_PATH);
+        }
+        logger.info("Finished loading piece placements from the csv: {}", CSV_FILE_PATH);
     }
 
-    public void mouseClicked(MouseEvent click) {
-        int rowClick = (int) click.getSceneX() / getTileWidth();
-        int colClick = (int) click.getSceneY() / getTileHeight();
+    private void initializePieces(String[] values) {
 
+        PieceColor color = PieceColor.getPieceColor(Integer.parseInt(values[0]));
 
-        if (selectedTile != null) {
-            selectedTile.resetColor();
+        for (int i = 1; i < values.length; i++) {
 
-            if(possibleTiles != null) {
-                possibleTiles.forEach(ChessBoardTilePane::toggleIndicator);
-            }
+            PieceType type = PieceType.getPieceType(values[i].charAt(0));
+            int row = Character.getNumericValue(values[i].charAt(1));
+            int col = Character.getNumericValue(values[i].charAt(2));
+            ChessPiece piece = ChessPiece.generateChessPiece(color, type);
+            chessBoardPane.setImageOfTile(row, col, piece.getImage());
+            chessBoard.placePiece(row, col, piece);
+            logger.info("Placing piece {} {} at row: {} - col: {}", color.name(), type.name(), row, col);
+
+        }
+    }
+
+    private void setMouseHandlers() {
+
+        chessBoardPane.setOnMousePressed(this::mousePressed);
+        chessBoardPane.setOnMouseReleased(this::mouseReleased);
+        chessBoardPane.setOnMouseDragged(this::mouseMoved);
+        logger.info("Setting up Mouse Handlers");
+    }
+
+    /** ------------------ **/
+    /** Mouse Event Logic  **/
+    /** ------------------ **/
+
+    private void mousePressed(MouseEvent pressed) {
+
+        if(selectedTile != null && selectedPosition != null) {
+
+            this.container.getChildren().remove(draggedImage);
+            this.draggedImage = null;
+            selectedTile.resetOpacity();
+
+            lastPosition = selectedPosition;
+            lastTile = selectedTile;
         }
 
-        if(!chessBoard.isOccupied(rowClick,colClick)) {
-            System.out.println("Clicked at: (" + rowClick + "/" + colClick +")");
-            selectedTile = null;
-            possibleTiles = null;
-            return;
+        Position clickedPosition = getPositionFromMouseEvent(pressed);
+        selectedPosition = clickedPosition;
+        selectedTile = chessBoardPane.get(clickedPosition.getRow(), clickedPosition.getCol());
+        selectedTile.opacity(getDragOpacity());
+
+        prepareDragImage(selectedTile, pressed);
+        setupPossibleMoves(clickedPosition);
+    }
+
+    private void mouseReleased(MouseEvent release) {
+
+    }
+
+    private void mouseMoved(MouseEvent moved) {
+        if (draggedImage != null) {
+            draggedImage.setTranslateX(moved.getX() - (draggedImage.getImage().getWidth() / 2.0));
+            draggedImage.setTranslateY(moved.getY() - (draggedImage.getImage().getHeight() / 2.0));
         }
+    }
 
-        selectedTile = chessBoardPane.get(rowClick,colClick);
-        selectedTile.setColor(getSelectedTileColor());
 
-        var piece = chessBoard.getPieceAt(rowClick,colClick);
-        System.out.println(piece.getColor().name().toLowerCase() + " " + piece.getType().name().toLowerCase() + " (" + rowClick + "/" + colClick +")");
+    private Position getPositionFromMouseEvent(MouseEvent event) {
+        int row = (int) event.getX() / getTileWidth();
+        int col = (int) event.getY() / getTileHeight();
+        return new Position(row, col);
+    }
 
-        var possiblePositions = piece.getMovementRange(chessBoard.getPosition(rowClick,colClick));
+    private void prepareDragImage(ChessBoardTilePane tile, MouseEvent pressed) {
+        draggedImage = new ImageView(tile.getImage().getImage());
+        draggedImage.setTranslateX(pressed.getX() - (draggedImage.getImage().getWidth() / 2.0));
+        draggedImage.setTranslateY(pressed.getY() - (draggedImage.getImage().getHeight() / 2.0));
+        draggedImage.setVisible(true);
+        container.getChildren().add(draggedImage);
+    }
 
-        /*
-         * 1. filter all the position we acquired, and remove the ones that are occupied by a piece
-         * 2. get the panes to toggle the indicators.
-         */
-        possibleTiles = possiblePositions
-                .stream()
+    private void setupPossibleMoves(Position newPos) {
+        ChessPiece piece = chessBoard.getPieceAt(newPos.getRow(), newPos.getCol());
+        possiblePositions = piece.getMovementRange(chessBoard.getPosition(newPos.getRow(), newPos.getCol()));
+        possibleTiles = possiblePositions.stream()
                 .map(pos -> chessBoardPane.get(pos.getRow(), pos.getCol()))
                 .toList();
-
         possibleTiles.forEach(ChessBoardTilePane::toggleIndicator);
-
     }
-
-    public void mouseDragged(MouseEvent drag) {
-        int rowDrag = (int) drag.getX() / getTileWidth();
-        int colDrag = (int) drag.getY() / getTileHeight();
-        logger.debug("Dragged mouse over field ({}/{})", rowDrag, colDrag);
-
-
-    }
-
-    public void mouseReleased(MouseEvent release) {
-        int rowRelease = (int) release.getSceneX() / getTileWidth();
-        int colRelease = (int) release.getSceneY() / getTileHeight();
-        logger.debug("Released mouse over field ({}/{})", rowRelease, colRelease);
-    }
-
-
 }

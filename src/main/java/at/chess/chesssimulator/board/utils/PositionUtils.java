@@ -82,8 +82,9 @@ public class PositionUtils {
             inBounds = isInBounds(bound);
 
             if (inBounds) {
+
                 var posToCheck = chessBoard.getPosition(bound.getRow(), bound.getCol());
-                isOccupied = chessBoard.isOccupied(posToCheck);
+                isOccupied = chessBoard.isOccupied(posToCheck) && posToCheck.getPiece().getColor() == position.getPiece().getColor();
             }
 
         } while (inBounds && !isOccupied);
@@ -103,6 +104,10 @@ public class PositionUtils {
      * @return {@code true} if both positions have the same row and column values; {@code false} otherwise.
      */
     public static boolean sameCoordinates(Position pos1, Position pos2) {
+        if(pos1 == null || pos2 == null) {
+            return false;
+        }
+
         return pos1.getRow() == pos2.getRow()
                 && pos1.getCol() == pos2.getCol();
     }

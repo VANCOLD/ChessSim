@@ -24,6 +24,8 @@ public class ChessBoardPane extends GridPane {
                 tile.setMouseTransparent(true);
                 tiles[i][j] = tile;
                 this.add(tile,i,j);
+
+
             }
         }
 
@@ -37,4 +39,5 @@ public class ChessBoardPane extends GridPane {
     public ChessBoardTilePane get(int row, int col) {
         return tiles[row][col];
     }
+
 }

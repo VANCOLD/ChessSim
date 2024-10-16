@@ -40,6 +40,7 @@ public class ChessBoardConfig {
     private static final int TILE_HEIGHT = 70;
     private static final int ROWS = 8;
     private static final int COLS = 8;
+    private static final double DRAG_OPACITY = 0.5;
     private static final Color TILE_COLOR_1 = Color.web("#D2B08B");
     private static final Color TILE_COLOR_2 = Color.web("#A17960");
     private static final Color SELECTED_TILE_COLOR = Color.web("#61673F");
@@ -50,6 +51,7 @@ public class ChessBoardConfig {
     private static final String TILE_HEIGHT_NAME = "tile_height";
     private static final String ROWS_NAME = "rows";
     private static final String COLS_NAME = "cols";
+    private static final String DRAG_OPACITY_NAME = "opacity";
     private static final String TILE_COLOR_1_NAME = "tile_color_1";
     private static final String TILE_COLOR_2_NAME = "tile_color_2";
     private static final String SELECTED_TILE_COLOR_NAME = "selected_tile_color";
@@ -59,6 +61,10 @@ public class ChessBoardConfig {
     // Loaded or default configuration values
     @Getter
     private static int tileWidth, tileHeight, rows, cols;
+
+    @Getter
+    private static double dragOpacity;
+
     @Getter
     private static Color tileColor1, tileColor2, selectedTileColor, possibleMoveColor;
     @Getter
@@ -71,14 +77,15 @@ public class ChessBoardConfig {
         tileHeight = TILE_HEIGHT;
         rows = ROWS;
         cols = COLS;
+        dragOpacity = DRAG_OPACITY;
         tileColor1 = TILE_COLOR_1;
         tileColor2 = TILE_COLOR_2;
         selectedTileColor = SELECTED_TILE_COLOR;
         possibleMoveColor = POSSIBLE_MOVE_COLOR;
         placeholderImage = PLACEHOLDER_IMAGE;
 
-        logger.info("Legend: tileWidth - tileHeight - rows - cols - tileColor1 - tileColor2 - selectedTileColor - possibleMoveColor");
-        logger.info("Default values: {} - {} - {} - {} - {} - {} - {} - {}", tileWidth, tileHeight, rows, cols,
+        logger.info("Legend: tileWidth - tileHeight - rows - cols - opacity - tileColor1 - tileColor2 - selectedTileColor - possibleMoveColor");
+        logger.info("Default values: {} - {} - {} - {} - {} - {} - {} - {} - {}", tileWidth, tileHeight, rows, cols, dragOpacity,
                 tileColor1, tileColor2, selectedTileColor, possibleMoveColor);
 
         // Attempt to load configuration from external file
@@ -112,6 +119,7 @@ public class ChessBoardConfig {
             tileHeight = Integer.parseInt(prop.getProperty(TILE_HEIGHT_NAME, "" + tileHeight));
             rows = Integer.parseInt(prop.getProperty(ROWS_NAME, "" + rows));
             cols = Integer.parseInt(prop.getProperty(COLS_NAME, "" + cols));
+            dragOpacity = Double.parseDouble(prop.getProperty(DRAG_OPACITY_NAME, "" + dragOpacity));
             tileColor1 = Color.web(prop.getProperty(TILE_COLOR_1_NAME, tileColor1.toString()));
             tileColor2 = Color.web(prop.getProperty(TILE_COLOR_2_NAME, tileColor2.toString()));
             selectedTileColor = Color.web(prop.getProperty(SELECTED_TILE_COLOR_NAME, selectedTileColor.toString()));

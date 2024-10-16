@@ -23,6 +23,9 @@ public class Position {
     /** The column index of the position on the chessboard (0-based). */
     private final int col;
 
+    /** Defines if a Position is the last element in a move scenario; Only used by MovementStrategy */
+    private boolean isMaxRange;
+
     /**
      * Constructs a position with a specified row, column, and an optional chess piece.
      *

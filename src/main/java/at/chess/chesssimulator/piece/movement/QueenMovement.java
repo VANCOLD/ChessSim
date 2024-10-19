@@ -45,7 +45,7 @@ public class QueenMovement extends AbstractStrategy {
         Position dia1Upper = getBound(dia1OppDir, curPos);
         dia1Upper = addVector(dia1Upper, dia1AddVector); // the bound must be inclusive!
 
-        logger.debug("Bishop movement - Diagonal1 lower bound {} / upper bound {}", dia1Lower, dia1Upper);
+        logger.debug("Queen movement - Diagonal1 lower bound {} / upper bound {}", dia1Lower, dia1Upper);
 
         Directions dia2Dir = DOWN_LEFT;
         Directions dia2OppDir = getOppositeDirection(dia2Dir);
@@ -54,7 +54,7 @@ public class QueenMovement extends AbstractStrategy {
         Position dia2Upper = getBound(dia2OppDir, curPos);
         dia2Upper = addVector(dia2Upper, dia2AddVector); // the bound must be inclusive!
 
-        logger.debug("Bishop movement - Diagonal2 lower bound {} / upper bound {}", dia2Lower, dia2Upper);
+        logger.debug("Queen movement - Diagonal2 lower bound {} / upper bound {}", dia2Lower, dia2Upper);
 
 
         Position posBuff = new Position(dia1Lower.getRow(), dia1Lower.getCol());

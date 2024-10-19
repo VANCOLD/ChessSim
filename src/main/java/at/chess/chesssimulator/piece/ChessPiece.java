@@ -7,7 +7,6 @@ import at.chess.chesssimulator.piece.movement.*;
 import at.chess.chesssimulator.utils.PngLoader;
 import javafx.scene.image.Image;
 import lombok.Getter;
-import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ public class ChessPiece {
     protected static final Logger logger = LoggerFactory.getLogger(ChessPiece.class);
 
     /** The visual representation of the chess piece. */
-    private final ImageView image;
+    private final Image image;
 
     /** The strategy used to determine valid movements for this chess piece. */
     protected final MovementStrategy movementStrategy;
@@ -44,7 +43,7 @@ public class ChessPiece {
      * @param color            The color of the chess piece.
      * @param type             The type of the chess piece.
      */
-    protected ChessPiece(ImageView image, MovementStrategy movementStrategy, PieceColor color, PieceType type) {
+    protected ChessPiece(Image image, MovementStrategy movementStrategy, PieceColor color, PieceType type) {
         this.image = image;
         this.movementStrategy = movementStrategy;
         this.color = color;
@@ -66,7 +65,6 @@ public class ChessPiece {
         String colorName = color.name().toLowerCase();
         String pieceName = type.name().toLowerCase();
         Image pieceImage = PngLoader.getInstance().getImage(colorName, "_", pieceName, ".png");
-        ImageView image = new ImageView(pieceImage);
 
         MovementStrategy movement = switch(type) {
             case PAWN -> new PawnMovement();
@@ -77,7 +75,7 @@ public class ChessPiece {
             case KNIGHT -> new KnightMovement();
         };
 
-        return new ChessPiece(image, movement, color, type);
+        return new ChessPiece(pieceImage, movement, color, type);
     }
 
     /**

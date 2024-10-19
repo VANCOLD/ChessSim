@@ -32,4 +32,11 @@ public enum PieceColor {
             default -> throw new IllegalStateException("Unexpected value: " + color);
         };
     }
+
+    public static PieceColor getOppositeColor(PieceColor color) {
+        return switch(color) {
+            case BLACK -> WHITE;
+            case WHITE -> BLACK;
+        };
+    }
 }

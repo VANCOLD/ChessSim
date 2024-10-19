@@ -3,6 +3,9 @@ package at.chess.chesssimulator.board.utils;
 import at.chess.chesssimulator.board.ChessBoard;
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.config.ChessBoardConfig;
+import javafx.scene.paint.Color;
+
+import java.util.List;
 
 /**
  * Utility class for operations related to positions on a chessboard.
@@ -75,19 +78,21 @@ public class PositionUtils {
         ChessBoard chessBoard = ChessBoard.getInstance();
 
         boolean inBounds;
-        boolean isOccupied = false;
+        boolean isOccupied;
 
         do {
             bound = addVector(dirVector, bound);
             inBounds = isInBounds(bound);
 
             if (inBounds) {
-
                 var posToCheck = chessBoard.getPosition(bound.getRow(), bound.getCol());
-                isOccupied = chessBoard.isOccupied(posToCheck) && posToCheck.getPiece().getColor() == position.getPiece().getColor();
+                isOccupied = chessBoard.isOccupied(posToCheck);
+                if (isOccupied) {
+                    break;
+                }
             }
 
-        } while (inBounds && !isOccupied);
+        } while (inBounds);
 
         // Undo last step to move back to the last valid position
         Position oppositeDir = Directions.getOppositeDirectionAsVector(direction);
@@ -110,5 +115,17 @@ public class PositionUtils {
 
         return pos1.getRow() == pos2.getRow()
                 && pos1.getCol() == pos2.getCol();
+    }
+
+    public static Color getTileColor(int row, int col) {
+        return (row + col) % 2 == 0 ? ChessBoardConfig.getTileColor1() : ChessBoardConfig.getTileColor2();
+    }
+
+    public static Color getTielsColor(Position pos) {
+        return getTileColor(pos.getRow(), pos.getCol());
+    }
+
+    public static boolean containsPosition(List<Position> positions, Position pos) {
+        return positions.stream().anyMatch(p -> sameCoordinates(p, pos));
     }
 }

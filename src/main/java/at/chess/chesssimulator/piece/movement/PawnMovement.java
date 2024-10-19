@@ -31,9 +31,9 @@ public class PawnMovement extends AbstractStrategy {
 
         var leftDiagonalCheck = addVector(diagonalLeftDir,move2);
         var rightDiagonalCheck = addVector(diagonalRightDir,move2);
-        if (isInBounds(move2) && !chessBoard.isOccupied(move2)
-          && !chessBoard.isOccupied(leftDiagonalCheck)
-          && !chessBoard.isOccupied(rightDiagonalCheck)) {
+        if (isInBounds(move2) && !chessBoard.isOccupiedByColor(move2, getOppositeColor(pieceColor))
+          && !chessBoard.isOccupiedByColor(leftDiagonalCheck, getOppositeColor(pieceColor))
+          && !chessBoard.isOccupiedByColor(rightDiagonalCheck, getOppositeColor(pieceColor))) {
             possiblePositions.add(move2);
         }
 

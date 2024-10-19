@@ -19,11 +19,13 @@ public class ChessBoardTilePane extends StackPane {
 
     private final Rectangle background;
     private final Circle indicator;
-    private boolean indicatorOn;
     private final Color defaultColor;
 
     @Getter
     private ImageView image;
+
+    @Getter
+    private boolean indicatorOn;
 
     public ChessBoardTilePane(int row, int col) {
         super();
@@ -71,22 +73,6 @@ public class ChessBoardTilePane extends StackPane {
         this.background.setFill(color);
     }
 
-    public void setImage(ImageView image) {
-        if (this.image != null) {
-            this.image.setMouseTransparent(true);
-        }
-        this.image = image;
-
-        // If the placeholder fails as well, this will be treated as a field with a piece, but we can't display it
-        if(this.image != null) {
-            this.getChildren().add(this.image);
-        }
-    }
-
-    public void resetColor() {
-        this.background.setFill(this.defaultColor);
-    }
-
     public void toggleIndicator() {
         this.indicatorOn = !this.indicatorOn;
 
@@ -97,9 +83,24 @@ public class ChessBoardTilePane extends StackPane {
         }
     }
 
+    public boolean defaultColorSet() {
+        return this.background.getFill().equals(this.defaultColor);
+    }
+
     public void opacity(double opacity) {
         opacity = Math.clamp(opacity, 0.0, 1.0);
         this.image.setOpacity(opacity);
+    }
+
+    public void setImage(ImageView image) {
+        this.image = image;
+        this.image.setMouseTransparent(true);
+        this.getChildren().add(image);
+    }
+
+    public void resetImage() {
+        this.getChildren().remove(this.image);
+        this.image = null;
     }
 
     public void resetOpacity() {

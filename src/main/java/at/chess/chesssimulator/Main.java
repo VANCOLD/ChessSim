@@ -15,7 +15,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-        logger.info("Starting ChessBoardSim");
+        printLogoAndVersion();
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/chessboard.fxml"));
         primaryStage.setTitle("Chessboard Application");
         primaryStage.setScene(new Scene(root));
@@ -26,5 +26,26 @@ public class Main extends Application {
 
     public static void main(String[] args) {
         launch(args);
+    }
+
+    private void printLogoAndVersion() {
+
+        String logo = """ 
+                
+                ·····················································································
+                :  /$$$$$$  /$$                                           /$$$$$$  /$$              :
+                : /$$__  $$| $$                                          /$$__  $$|__/              :
+                :| $$  \\__/| $$$$$$$   /$$$$$$   /$$$$$$$ /$$$$$$$      | $$  \\__/ /$$ /$$$$$$/$$$$ :
+                :| $$      | $$__  $$ /$$__  $$ /$$_____//$$_____/      |  $$$$$$ | $$| $$_  $$_  $$:
+                :| $$      | $$  \\ $$| $$$$$$$$|  $$$$$$|  $$$$$$        \\____  $$| $$| $$ \\ $$ \\ $$:
+                :| $$    $$| $$  | $$| $$_____/ \\____  $$\\____  $$       /$$  \\ $$| $$| $$ | $$ | $$:
+                :|  $$$$$$/| $$  | $$|  $$$$$$$ /$$$$$$$//$$$$$$$/      |  $$$$$$/| $$| $$ | $$ | $$:
+                : \\______/ |__/  |__/ \\_______/|_______/|_______/        \\______/ |__/|__/ |__/ |__/:
+                ·····················································································
+                (Version 1.0.0)
+                """;
+
+        logger.info(logo);
+
     }
 }

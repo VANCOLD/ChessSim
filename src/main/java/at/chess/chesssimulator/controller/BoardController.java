@@ -38,8 +38,8 @@ public class BoardController {
     private Position selectedPosition;
     private List<Position> possiblePositions;
 
-    private boolean ignoreInput = false;
-
+    private boolean ignoreInput;
+    private boolean hasSelectionHappened;
     private PieceColor turn = PieceColor.BLACK;
 
     @FXML
@@ -48,7 +48,7 @@ public class BoardController {
     private ImageView draggedImage;
     @FXML
     private ChessBoardPane chessBoardPane;
-    private boolean hasSelectionHappened;
+
 
     @FXML
     public void initialize() {
@@ -85,8 +85,7 @@ public class BoardController {
             int row = Character.getNumericValue(values[i].charAt(1));
             int col = Character.getNumericValue(values[i].charAt(2));
             ChessPiece piece = ChessPiece.generateChessPiece(color, type);
-            chessBoardPane.setImage(row, col, piece.getImage());
-            chessBoard.placePiece(row, col, piece);
+            chessBoard.placePiece(row, col, piece, chessBoardPane.get(row, col));
             logger.info("Placing piece {} {} at row: {} - col: {}", color.name(), type.name(), row, col);
 
         }
@@ -109,6 +108,13 @@ public class BoardController {
         Position clickedPosition = getPositionFromMouseEvent(pressed);
         logger.info("Selected tile at position: {}", clickedPosition);
 
+
+        if ( (!chessBoard.isOccupied(clickedPosition) && selectedPosition == null)
+             || chessBoard.isOccupied(clickedPosition) && !chessBoard.isOccupiedByColor(clickedPosition,turn) ) {
+            ignoreInput = true;
+            return;
+        }
+
         if (selectedPosition != null) {
 
             if (containsPosition(possiblePositions, clickedPosition)) {
@@ -118,20 +124,18 @@ public class BoardController {
 
             } else {
 
-                if (!chessBoard.isOccupied(clickedPosition) || chessBoard.getPieceAt(clickedPosition).getColor() != turn) {
-                    ignoreInput = true;
-                    return;
-                }
-
                 if(sameCoordinates(selectedPosition, clickedPosition)) {
+                    chessBoardPane.opacity(selectedPosition, getDragOpacity());
                     prepareDragImage(selectedPosition, pressed);
-                } else if( chessBoard.getPieceAt(clickedPosition).getColor() == turn) {
+                } else if( chessBoard.isOccupiedByColor(clickedPosition, turn)) {
 
                     resetSelection();
                     selectedPosition = clickedPosition;
                     chessBoardPane.toggleTile(selectedPosition);
+                    chessBoardPane.opacity(selectedPosition, getDragOpacity());
                     setupPossibleMoves(selectedPosition);
                     prepareDragImage(selectedPosition, pressed);
+
                 }
             }
 
@@ -139,6 +143,7 @@ public class BoardController {
 
             selectedPosition = clickedPosition;
             chessBoardPane.toggleTile(selectedPosition);
+            chessBoardPane.opacity(selectedPosition, getDragOpacity());
             setupPossibleMoves(selectedPosition);
             prepareDragImage(selectedPosition, pressed);
 
@@ -163,9 +168,11 @@ public class BoardController {
         if( !isSamePosition && isPossibleMove) {
             makeMove(releasedPosition);
         } else if(isSamePosition && !hasSelectionHappened) {
+            chessBoardPane.resetOpacity(selectedPosition);
             resetDrag();
             hasSelectionHappened = true;
         } else {
+            chessBoardPane.resetOpacity(selectedPosition);
             resetSelection();
             hasSelectionHappened = false;
         }
@@ -177,9 +184,7 @@ public class BoardController {
 
     private void makeMove(Position releasedPosition) {
         logger.info("Making move from {} to {}", selectedPosition, releasedPosition);
-        chessBoardPane.setImage(releasedPosition, chessBoard.getPieceAt(selectedPosition).getImage());
-        chessBoardPane.resetImage(selectedPosition);
-        chessBoard.movePiece(selectedPosition, releasedPosition);
+        chessBoard.movePiece(selectedPosition, releasedPosition, chessBoardPane.get(releasedPosition));
         resetSelection();
         soundManager.playSound(SoundType.MOVE);
     }
@@ -229,8 +234,11 @@ public class BoardController {
         chessBoardPane.toggleTile(selectedPosition);
         selectedPosition = null;
 
-        possiblePositions.forEach(pos -> chessBoardPane.toggleIndicator(pos));
-        possiblePositions = null;
+        if(possiblePositions != null) {
+            possiblePositions.forEach(pos -> chessBoardPane.toggleIndicator(pos));
+            possiblePositions = null;
+        }
+
         resetDrag();
     }
 

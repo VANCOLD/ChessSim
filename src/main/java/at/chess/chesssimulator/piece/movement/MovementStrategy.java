@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface MovementStrategy {
     List<Position> getPossibleMoves(Position position);
+
+    boolean canCapture(Position position);
 }

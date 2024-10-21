@@ -1,12 +1,14 @@
 package at.chess.chesssimulator.piece;
 
 import at.chess.chesssimulator.board.Position;
+import at.chess.chesssimulator.board.ui.ChessBoardTilePane;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
 import at.chess.chesssimulator.piece.movement.*;
 import at.chess.chesssimulator.utils.PngLoader;
 import javafx.scene.image.Image;
 import lombok.Getter;
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +36,10 @@ public class ChessPiece {
 
     /** The type of the chess piece (e.g., pawn, rook, etc.). */
     private final PieceType type;
+
+    /** the current tile this piece is occupying, used for ui representation */
+    @Setter
+    private ChessBoardTilePane tile;
 
     /**
      * Constructs a chess piece with the specified properties.

@@ -4,7 +4,6 @@ import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.input.MouseDragEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -107,9 +106,4 @@ public class ChessBoardTilePane extends StackPane {
         this.image.setOpacity(1.0);
     }
 
-    public void mouseDragged(MouseDragEvent drag) {
-        int rowDrag = (int) drag.getX() / getTileWidth();
-        int colDrag = (int) drag.getY() / getTileHeight();
-        System.out.println("Dragged mouse over field (" + rowDrag + "/" + colDrag + ")");
-    }
 }

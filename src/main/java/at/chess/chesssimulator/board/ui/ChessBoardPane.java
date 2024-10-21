@@ -2,8 +2,6 @@ package at.chess.chesssimulator.board.ui;
 
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.utils.PositionUtils;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import org.slf4j.Logger;
@@ -28,8 +26,6 @@ public class ChessBoardPane extends GridPane {
                 tile.setMouseTransparent(true);
                 tiles[i][j] = tile;
                 this.add(tile,i,j);
-
-
             }
         }
 
@@ -55,23 +51,27 @@ public class ChessBoardPane extends GridPane {
         toggleIndicator(pos.getRow(), pos.getCol());
     }
 
-    public void setImage(int row, int col, Image image) {
-        tiles[row][col].setImage(new ImageView(image));
+    public void opacity(int row, int col, double opacity) {
+        tiles[row][col].opacity(opacity);
     }
 
-    public void setImage(Position pos, Image image) {
-        setImage(pos.getRow(), pos.getCol(), image);
+    public void opacity(Position pos, double opacity) {
+        opacity(pos.getRow(), pos.getCol(), opacity);
     }
 
-    public void resetImage(int row, int col) {
-        tiles[row][col].resetImage();
+    public void resetOpacity(int row, int col) {
+        tiles[row][col].resetOpacity();
     }
 
-    public void resetImage(Position pos) {
-        resetImage(pos.getRow(), pos.getCol());
+    public void resetOpacity(Position pos) {
+        resetOpacity(pos.getRow(), pos.getCol());
     }
 
-    public boolean isSelected(Position releasedPosition) {
-        return !tiles[releasedPosition.getRow()][releasedPosition.getCol()].defaultColorSet();
+    public ChessBoardTilePane get(int row, int col) {
+        return tiles[row][col];
+    }
+
+    public ChessBoardTilePane get(Position pos) {
+        return get(pos.getRow(), pos.getCol());
     }
 }

@@ -126,6 +126,11 @@ public class PositionUtils {
     }
 
     public static boolean containsPosition(List<Position> positions, Position pos) {
+
+        if(positions == null || pos == null) {
+            return false;
+        }
+
         return positions.stream().anyMatch(p -> sameCoordinates(p, pos));
     }
 }

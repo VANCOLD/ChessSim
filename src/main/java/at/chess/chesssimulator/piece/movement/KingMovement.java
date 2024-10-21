@@ -25,4 +25,9 @@ public class KingMovement extends AbstractStrategy {
 
         return bufferList;
     }
+
+    @Override
+    public boolean canCapture(Position position) {
+        return false;
+    }
 }

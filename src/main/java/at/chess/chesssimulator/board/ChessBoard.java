@@ -1,7 +1,11 @@
 package at.chess.chesssimulator.board;
 
+import at.chess.chesssimulator.board.ui.ChessBoardTilePane;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
+import at.chess.chesssimulator.piece.enums.PieceType;
+import at.chess.chesssimulator.piece.movement.PawnMovement;
+import javafx.scene.image.ImageView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.Setter;
@@ -39,40 +43,33 @@ public class ChessBoard {
     }
 
 
-    public void placePiece(int row, int col, ChessPiece piece) {
+    public void placePiece(int row, int col, ChessPiece piece, ChessBoardTilePane tile) {
         if(isInBounds(row, col)) {
             board[row][col].setPiece(piece);
+            board[row][col].setOccupied(true);
+            piece.setTile(tile);
+            tile.setImage(new ImageView(piece.getImage()));
         }
     }
 
-    public void placePiece(Position pos, ChessPiece piece) {
-        if(isInBounds(pos)) {
-            board[pos.getRow()][pos.getCol()].setPiece(piece);
-        }
+    public void placePiece(Position pos, ChessPiece piece, ChessBoardTilePane tile) {
+        placePiece(pos.getRow(), pos.getCol(), piece, tile);
     }
 
     public boolean isOccupied(int row, int col) {
         if(isInBounds(row, col)) {
-            return board[row][col].getPiece() != null;
+            return board[row][col].isOccupied();
         } else {
             return false;
         }
     }
 
     public boolean isOccupied(Position pos) {
-        if (isInBounds(pos)) {
-            return board[pos.getRow()][pos.getCol()].getPiece() != null;
-        } else {
-            return false;
-        }
+        return isOccupied(pos.getRow(), pos.getCol());
     }
 
     public boolean isOccupiedByColor(Position pos, PieceColor color) {
-        if (isInBounds(pos)) {
-            return board[pos.getRow()][pos.getCol()].getPiece() != null && board[pos.getRow()][pos.getCol()].getPiece().getColor() == color;
-        } else {
-            return false;
-        }
+        return isOccupied(pos) && getPieceAt(pos) != null && getPieceAt(pos).getColor() == color;
     }
 
     public ChessPiece getPieceAt(int row, int col) {
@@ -84,7 +81,7 @@ public class ChessBoard {
     }
 
     public ChessPiece getPieceAt(Position pos) {
-        if (isInBounds(pos)) {
+        if (isInBounds(pos) && isOccupied(pos)) {
             return board[pos.getRow()][pos.getCol()].getPiece();
         } else {
             return null;
@@ -109,21 +106,26 @@ public class ChessBoard {
 
     private void clearPosition(int row, int col) {
         if (isInBounds(row, col)) {
+            board[row][col].getPiece().getTile().resetImage();
+            board[row][col].getPiece().setTile(null);
             board[row][col].setPiece(null);
+            board[row][col].setOccupied(false);
         }
     }
 
     private void clearPosition(Position pos) {
-        if (isInBounds(pos)) {
-            board[pos.getRow()][pos.getCol()].setPiece(null);
-        }
+        clearPosition(pos.getRow(), pos.getCol());
     }
 
-    public void movePiece(Position originalPosition, Position newPosition) {
+    public void movePiece(Position originalPosition, Position newPosition, ChessBoardTilePane tile) {
         if (isInBounds(originalPosition) && isInBounds(newPosition)) {
             ChessPiece piece = getPieceAt(originalPosition);
             clearPosition(originalPosition);
-            placePiece(newPosition, piece);
+            placePiece(newPosition, piece, tile);
+
+            if (piece.getType() == PieceType.PAWN) {
+                ((PawnMovement) piece.getMovementStrategy()).setFirstMove(false);
+            }
         }
     }
 }

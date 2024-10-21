@@ -45,4 +45,9 @@ public class RookMovement extends AbstractStrategy {
 
         return possiblePositions;
     }
+
+    @Override
+    public boolean canCapture(Position position) {
+        return false;
+    }
 }

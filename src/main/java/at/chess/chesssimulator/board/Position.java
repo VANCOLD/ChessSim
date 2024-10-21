@@ -23,10 +23,10 @@ public class Position {
     /** The column index of the position on the chessboard (0-based). */
     private final int col;
 
-    /** Defines if a Position is the last element in a move scenario; Only used by MovementStrategy */
-    private boolean isMaxRange;
+    /** Defines if a Position is occupied by a chess piece */
+    private boolean occupied;
 
-    /**
+    /**e
      * Constructs a position with a specified row, column, and an optional chess piece.
      *
      * @param row   The row index of the position.
@@ -37,6 +37,7 @@ public class Position {
         this.row = row;
         this.col = col;
         this.piece = piece;
+        this.occupied = piece != null;
     }
 
     /**

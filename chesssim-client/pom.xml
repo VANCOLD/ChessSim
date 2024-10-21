@@ -4,15 +4,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>at.chess</groupId>
-    <artifactId>ChessSimulator</artifactId>
+    <artifactId>ChessSimulator-Client</artifactId>
     <version>1.0.0</version>
     <name>ChessSimulator</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <junit.version>5.10.2</junit.version>
-        <lombok.version>1.18.30</lombok.version> <!-- Updated version -->
-        <javafx.version>21</javafx.version> <!-- JavaFX version -->
+        <lombok.version>1.18.30</lombok.version>
+        <javafx.version>21</javafx.version>
     </properties>
 
     <dependencies>
@@ -30,18 +29,6 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-media</artifactId>
             <version>${javafx.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-api</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

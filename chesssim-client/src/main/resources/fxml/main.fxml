@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="20" style="-fx-padding: 20 20 20 20;"
+      fx:controller="at.chess.chesssimulator.controller.MainController">
+
+    <!-- Header for the Chess Sim -->
+    <Text text="Chess Simulator" style="-fx-font-size: 24px; -fx-font-weight: bold;" />
+
+    <!-- Container for Buttons -->
+    <VBox alignment="CENTER" spacing="15">
+        <Button fx:id="localPlay" text="Play Locally" minWidth="200"/>
+        <Button fx:id="onlinePlay" text="Play Online" minWidth="200" disable="true"/>
+        <Button fx:id="replay" text="Watch replay" minWidth="200" disable="true"/>
+        <Button fx:id="settings" text="Options" minWidth="200"/>
+        <Button fx:id="exit" text="Exit" minWidth="200"/>
+    </VBox>
+</VBox>

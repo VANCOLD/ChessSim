@@ -2,10 +2,12 @@ package at.chess.chesssimulator.piece.movement;
 
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.utils.Directions;
-import at.chess.chesssimulator.board.utils.PositionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static at.chess.chesssimulator.board.utils.Directions.*;
+import static at.chess.chesssimulator.board.utils.PositionUtils.*;
 
 public class RookMovement extends AbstractStrategy {
 
@@ -13,41 +15,30 @@ public class RookMovement extends AbstractStrategy {
     public List<Position> getPossibleMoves(Position curPos) {
 
         List<Position> possiblePositions = new ArrayList<>();
-
-        int pieceX = curPos.getRow();
-        int pieceY = curPos.getCol();
-        int pieceXLower = PositionUtils.getBound(Directions.LEFT, curPos).getRow();
-        int pieceXUpper = PositionUtils.getBound(Directions.RIGHT, curPos).getRow();
-        int pieceYLower = PositionUtils.getBound(Directions.UP, curPos).getCol();
-        int pieceYUpper = PositionUtils.getBound(Directions.DOWN, curPos).getCol();
-
-        logger.debug("Rook movement - x-axis lower bound {} / upper bound {}", pieceXLower, pieceXUpper);
-        logger.debug("Rook movement - y-axis lower bound {} / upper bound {}", pieceYLower, pieceYUpper);
-
-
-        // Getting all positions in the same row
-        for (int i = pieceXLower; i <= pieceXUpper; i++) {
-            possiblePositions.add(new Position(i,pieceY));
-        }
-
-        // Getting all position in the same col
-        for (int i = pieceYLower; i <= pieceYUpper; i++) {
-            possiblePositions.add(new Position(pieceX, i));
-        }
+        // choosing either left / up or down and right is fine, it will check each direction anyways with 1 call
+        addStraightLineMoves(possiblePositions, curPos, LEFT);
+        addStraightLineMoves(possiblePositions, curPos, UP);
 
         // Removing the place where the rook is standing
         possiblePositions.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
-                                    && toCheck.getCol() == curPos.getCol());
-
+                && toCheck.getCol() == curPos.getCol());
 
         logger.debug("Rook movement - found the following possible moves: {}", possiblePositions);
-
-
         return possiblePositions;
     }
 
-    @Override
-    public boolean canCapture(Position position) {
-        return false;
+    protected static void addStraightLineMoves(List<Position> positions, Position curPos, Directions direction) {
+        Position bound = getBound(direction, curPos);
+        Position oppositeBound = getBound(getOppositeDirection(direction), curPos);
+        Position addVector = getOppositeDirectionAsVector(direction);
+        oppositeBound = addVector(oppositeBound, addVector); // the bound must be inclusive!
+
+        logger.debug("Rook movement - {} lower bound {} / upper bound {}", direction, bound, oppositeBound);
+
+        Position posBuff = new Position(bound.getRow(), bound.getCol());
+        do {
+            positions.add(posBuff);
+            posBuff = addVector(addVector, posBuff);
+        } while (isInBounds(posBuff) && !sameCoordinates(oppositeBound, posBuff));
     }
 }

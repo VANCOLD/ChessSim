@@ -74,13 +74,16 @@ public class PngLoader {
             File folder = new File(url.getFile());
             File[] files = folder.listFiles((dir, name) -> name.endsWith(".png") || name.endsWith(".jpg") || name.endsWith(".jpeg"));
 
-            assert files != null; // Debug only
+            if (files == null) {
+                logger.warn("No images found in the folder {}", folder.getName());
+                continue;
+            }
 
             for (File file : files) {
-                String imagePath = file.toURI().toString();  // Convert file path to URI string
+                String imagePath = file.toURI().toString();
                 Image image = new Image(imagePath);
                 this.loadedImages.put(file.getName(), image);
-                logger.info("Loaded key-value pair into loaded images - {}", file.getName());
+                logger.debug("Loaded key-value pair into loaded images - {}", file.getName());
             }
         }
     }

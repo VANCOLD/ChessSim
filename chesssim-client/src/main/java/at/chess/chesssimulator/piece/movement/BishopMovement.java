@@ -13,55 +13,33 @@ public class BishopMovement extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
-        
-        List<Position> bufferList = new ArrayList<>();
 
-        // Diagonal Direction
-        Directions dia1Dir = UP_LEFT;
-        Directions dia1OppDir = getOppositeDirection(dia1Dir);
-        Position dia1AddVector = getOppositeDirectionAsVector(dia1Dir);
-        Position dia1Lower = getBound(dia1Dir, curPos);
-        Position dia1Upper = getBound(dia1OppDir, curPos);
-        dia1Upper = addVector(dia1Upper, dia1AddVector); // the bound must be inclusive!
+        List<Position> possiblePositions = new ArrayList<>();
+        // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyways with 1 call
+        addDiagonalMoves(possiblePositions, curPos, UP_LEFT);
+        addDiagonalMoves(possiblePositions, curPos, UP_RIGHT);
 
-        logger.debug("Bishop movement - Diagonal1 lower bound {} / upper bound {}", dia1Lower, dia1Upper);
-
-        Directions dia2Dir = DOWN_LEFT;
-        Directions dia2OppDir = getOppositeDirection(dia2Dir);
-        Position dia2AddVector = getOppositeDirectionAsVector(dia2Dir);
-        Position dia2Lower = getBound(dia2Dir, curPos);
-        Position dia2Upper = getBound(dia2OppDir, curPos);
-        dia2Upper = addVector(dia2Upper, dia2AddVector); // the bound must be inclusive!
-
-        logger.debug("Bishop movement - Diagonal2 lower bound {} / upper bound {}", dia2Lower, dia2Upper);
-
-
-        Position posBuff = new Position(dia1Lower.getRow(), dia1Lower.getCol());
-        do {
-            bufferList.add(posBuff);
-            posBuff = addVector(dia1AddVector, posBuff);
-        } while(isInBounds(posBuff) && !sameCoordinates(dia1Upper, posBuff));
-
-        posBuff = new Position(dia2Lower.getRow(), dia2Lower.getCol());
-        do {
-            bufferList.add(posBuff);
-            posBuff = addVector(dia2AddVector, posBuff);
-        } while(isInBounds(posBuff) && !sameCoordinates(dia2Upper, posBuff));
-        // sameCoordinates tells us if cords are the same, we break out of the loop, but the bounds stop a position before we hit a piece!
-        // That's why we increased the upper bounds by 1
-
-
-        // Removing the place where the rook is standing
-        bufferList.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
+        // Removing the place where the bishop is standing
+        possiblePositions.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
                 && toCheck.getCol() == curPos.getCol());
 
-        logger.debug("Bishop movement - found the following possible moves: {}", bufferList);
-
-        return bufferList;
+        logger.debug("Bishop movement - found the following possible moves: {}", possiblePositions);
+        return possiblePositions;
     }
 
-    @Override
-    public boolean canCapture(Position position) {
-        return false;
+    protected static void addDiagonalMoves(List<Position> positions, Position curPos, Directions direction) {
+
+        Position bound = getBound(direction, curPos);
+        Position oppositeBound = getBound(getOppositeDirection(direction), curPos);
+        Position addVector = getOppositeDirectionAsVector(direction);
+        oppositeBound = addVector(oppositeBound, addVector); // the bound must be inclusive!
+
+        logger.debug("Bishop movement - {} lower bound {} / upper bound {}", direction, bound, oppositeBound);
+
+        Position posBuff = new Position(bound.getRow(), bound.getCol());
+        do {
+            positions.add(posBuff);
+            posBuff = addVector(addVector, posBuff);
+        } while (isInBounds(posBuff) && !sameCoordinates(oppositeBound, posBuff));
     }
 }

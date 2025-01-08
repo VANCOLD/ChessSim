@@ -21,7 +21,7 @@ import java.util.List;
  * </p>
  */
 @Getter
-public class ChessPiece {
+public class ChessPiece implements Cloneable {
 
     protected static final Logger logger = LoggerFactory.getLogger(ChessPiece.class);
 
@@ -36,10 +36,6 @@ public class ChessPiece {
 
     /** The type of the chess piece (e.g., pawn, rook, etc.). */
     private final PieceType type;
-
-    /** the current tile this piece is occupying, used for ui representation */
-    @Setter
-    private ChessBoardTilePane tile;
 
     /**
      * Constructs a chess piece with the specified properties.
@@ -67,7 +63,7 @@ public class ChessPiece {
      * @return A new instance of {@link ChessPiece}.
      */
     public static ChessPiece generateChessPiece(PieceColor color, PieceType type) {
-        logger.info("Generating new piece {} {}", color.name().toLowerCase(), type.name().toLowerCase());
+        logger.debug("Generating new piece {} {}", color.name().toLowerCase(), type.name().toLowerCase());
         String colorName = color.name().toLowerCase();
         String pieceName = type.name().toLowerCase();
         Image pieceImage = PngLoader.getInstance().getImage(colorName, "_", pieceName, ".png");
@@ -92,5 +88,25 @@ public class ChessPiece {
      */
     public List<Position> getMovementRange(Position posToCheck) {
         return this.movementStrategy.getPossibleMoves(posToCheck);
+    }
+
+
+    /**
+     * Creates and returns a copy of this chess piece.
+     * <p>
+     * The method performs a shallow copy of the chess piece, meaning that the piece's fields are copied as-is.
+     * This includes the image, movement strategy, color, and type.
+     * </p>
+     *
+     * @return A clone of this chess piece.
+     * @throws AssertionError If the cloning operation is not supported.
+     */
+    @Override
+    public ChessPiece clone() {
+        try {
+            return (ChessPiece) super.clone();
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError(); // Can't happen
+        }
     }
 }

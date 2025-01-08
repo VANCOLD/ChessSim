@@ -26,6 +26,12 @@ public class Position {
     /** Defines if a Position is occupied by a chess piece */
     private boolean occupied;
 
+    /** Defines if a Position is selected (ui only) */
+    private boolean selected;
+
+    /** Defines if a Position should show an indicator (ui only) */
+    private boolean indicator;
+
     /**e
      * Constructs a position with a specified row, column, and an optional chess piece.
      *
@@ -38,6 +44,8 @@ public class Position {
         this.col = col;
         this.piece = piece;
         this.occupied = piece != null;
+        this.selected = false;
+        this.indicator = false;
     }
 
     /**

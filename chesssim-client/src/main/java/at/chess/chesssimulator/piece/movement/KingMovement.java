@@ -8,6 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Predicate;
 
+import static at.chess.chesssimulator.board.utils.PositionUtils.sameCoordinates;
+
 public class KingMovement extends AbstractStrategy {
 
     @Override
@@ -18,16 +20,10 @@ public class KingMovement extends AbstractStrategy {
                                     .stream()
                                     .map(pos -> PositionUtils.addVector(pos,curPos))
                                     .filter(PositionUtils::isInBounds)
-                                    .filter(Predicate.not(chessBoard::isOccupied))
                                     .toList();
 
         logger.debug("King movement - found the following possible moves: {}", bufferList);
 
         return bufferList;
-    }
-
-    @Override
-    public boolean canCapture(Position position) {
-        return false;
     }
 }

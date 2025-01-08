@@ -1,13 +1,13 @@
+// src/main/java/at/chess/chesssimulator/controller/BoardController.java
 package at.chess.chesssimulator.controller;
 
-import at.chess.chesssimulator.board.ChessBoard;
 import at.chess.chesssimulator.board.Move;
 import at.chess.chesssimulator.board.Position;
-import at.chess.chesssimulator.board.enums.MoveType;
 import at.chess.chesssimulator.board.ui.ChessBoardPane;
-import at.chess.chesssimulator.piece.ChessPiece;
+import at.chess.chesssimulator.board.ui.ChessBoardTilePane;
+import at.chess.chesssimulator.gamelogic.GameMaster;
+import at.chess.chesssimulator.gamelogic.Player;
 import at.chess.chesssimulator.piece.enums.PieceColor;
-import at.chess.chesssimulator.piece.enums.PieceType;
 import at.chess.chesssimulator.sound.SoundManager;
 import at.chess.chesssimulator.sound.SoundType;
 import javafx.fxml.FXML;
@@ -15,32 +15,29 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
+import java.util.List;
+
+import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.List;
-
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
-import static at.chess.chesssimulator.board.utils.PositionUtils.containsPosition;
-import static at.chess.chesssimulator.board.utils.PositionUtils.sameCoordinates;
-import static at.chess.chesssimulator.utils.Constants.CSV_FILE_PATH;
 
-public class BoardController {
+public class BoardController implements Player {
 
     protected static final Logger logger = LoggerFactory.getLogger(BoardController.class);
 
-    private ChessBoard chessBoard;
     private SoundManager soundManager;
 
-    private Position selectedPosition;
-    private List<Position> possiblePositions;
+    @Setter
+    private GameMaster gameMaster;
 
+    private Position selectedPosition;
     private boolean ignoreInput;
-    private boolean hasSelectionHappened;
-    private PieceColor turn = PieceColor.BLACK;
+    private PieceColor turn;
+
+    @Setter
+    private boolean onlyOnePlayer;
 
     @FXML
     private Pane container;
@@ -48,145 +45,43 @@ public class BoardController {
     private ImageView draggedImage;
     @FXML
     private ChessBoardPane chessBoardPane;
-
+    private boolean waitForConfirmation;
 
     @FXML
     public void initialize() {
-        chessBoard = ChessBoard.getInstance();
         soundManager = SoundManager.getInstance();
-        loadBoard();
         setMouseHandlers();
     }
 
-    private void loadBoard() {
-
-        logger.info("Loading piece placements from {}", CSV_FILE_PATH);
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(CSV_FILE_PATH)))) {
-
-            String line;
-            while ((line = br.readLine()) != null) {
-                logger.info("Reading line from csv: {}", line);
-                initializePieces(line.split(";"));
-            }
-
-        } catch (IOException e) {
-            logger.error("An error occurred while reading data from the csv {}", CSV_FILE_PATH);
-        }
-        logger.info("Finished loading piece placements from the csv: {}", CSV_FILE_PATH);
-    }
-
-    private void initializePieces(String[] values) {
-
-        PieceColor color = PieceColor.getPieceColor(Integer.parseInt(values[0]));
-
-        for (int i = 1; i < values.length; i++) {
-
-            PieceType type = PieceType.getPieceType(values[i].charAt(0));
-            int row = Character.getNumericValue(values[i].charAt(1));
-            int col = Character.getNumericValue(values[i].charAt(2));
-            ChessPiece piece = ChessPiece.generateChessPiece(color, type);
-            chessBoard.placePiece(row, col, piece, chessBoardPane.get(row, col));
-            logger.info("Placing piece {} {} at row: {} - col: {}", color.name(), type.name(), row, col);
-
-        }
-    }
-
     private void setMouseHandlers() {
-
         chessBoardPane.setOnMousePressed(this::mousePressed);
         chessBoardPane.setOnMouseReleased(this::mouseReleased);
         chessBoardPane.setOnMouseDragged(this::mouseMoved);
         logger.info("Setting up Mouse Handlers");
     }
 
-    /** ------------------ **/
-    /** Mouse Event Logic  **/
-    /** ------------------ **/
-
     private void mousePressed(MouseEvent pressed) {
-
         Position clickedPosition = getPositionFromMouseEvent(pressed);
-        logger.info("Selected tile at position: {}", clickedPosition);
+        logger.debug("Pressed tile at position: {}", clickedPosition);
 
-
-        if ( (!chessBoard.isOccupied(clickedPosition) && selectedPosition == null)
-             || chessBoard.isOccupied(clickedPosition) && !chessBoard.isOccupiedByColor(clickedPosition,turn) ) {
+        if (isInvalidClick(clickedPosition)) {
             ignoreInput = true;
             return;
         }
 
-        if (selectedPosition != null) {
-
-            if (containsPosition(possiblePositions, clickedPosition)) {
-
-                makeMove(clickedPosition);
-                ignoreInput = true;
-
-            } else {
-
-                if(sameCoordinates(selectedPosition, clickedPosition)) {
-                    chessBoardPane.opacity(selectedPosition, getDragOpacity());
-                    prepareDragImage(selectedPosition, pressed);
-                } else if( chessBoard.isOccupiedByColor(clickedPosition, turn)) {
-
-                    resetSelection();
-                    selectedPosition = clickedPosition;
-                    chessBoardPane.toggleTile(selectedPosition);
-                    chessBoardPane.opacity(selectedPosition, getDragOpacity());
-                    setupPossibleMoves(selectedPosition);
-                    prepareDragImage(selectedPosition, pressed);
-
-                }
-            }
-
-        } else {
-
-            selectedPosition = clickedPosition;
-            chessBoardPane.toggleTile(selectedPosition);
-            chessBoardPane.opacity(selectedPosition, getDragOpacity());
-            setupPossibleMoves(selectedPosition);
-            prepareDragImage(selectedPosition, pressed);
-
-        }
-
+        selectedPosition = clickedPosition;
+        prepareDragImage(clickedPosition, pressed);
     }
 
     private void mouseReleased(MouseEvent released) {
-
-        Position releasedPosition = getPositionFromMouseEvent(released);
-        logger.info("Released tile at position: {}", releasedPosition);
-
-        if(ignoreInput) {
+        if (ignoreInput || waitForConfirmation) {
             ignoreInput = false;
             return;
         }
 
-        boolean isSamePosition = sameCoordinates(releasedPosition, selectedPosition);
-        boolean isPossibleMove = containsPosition(possiblePositions, releasedPosition);
-
-
-        if( !isSamePosition && isPossibleMove) {
-            makeMove(releasedPosition);
-        } else if(isSamePosition && !hasSelectionHappened) {
-            chessBoardPane.resetOpacity(selectedPosition);
-            resetDrag();
-            hasSelectionHappened = true;
-        } else {
-            chessBoardPane.resetOpacity(selectedPosition);
-            resetSelection();
-            hasSelectionHappened = false;
-        }
-    }
-
-    public Move generateMove(Position originalPosition, Position newPosition) {
-        return new Move(originalPosition, newPosition, MoveType.DEFAULT);
-    }
-
-    private void makeMove(Position releasedPosition) {
-        logger.info("Making move from {} to {}", selectedPosition, releasedPosition);
-        chessBoard.movePiece(selectedPosition, releasedPosition, chessBoardPane.get(releasedPosition));
-        resetSelection();
-        soundManager.playSound(SoundType.MOVE);
+        Position releasedPosition = getPositionFromMouseEvent(released);
+        logger.debug("Released tile at position: {}", releasedPosition);
+        sendMove(selectedPosition, releasedPosition);
     }
 
     private void mouseMoved(MouseEvent moved) {
@@ -203,10 +98,8 @@ public class BoardController {
     }
 
     private void prepareDragImage(Position pos, MouseEvent pressed) {
-
         resetDrag();
-
-        Image image = chessBoard.getPieceAt(pos.getRow(), pos.getCol()).getImage();
+        Image image = gameMaster.getPieceImage(pos);
         draggedImage = new ImageView(image);
         draggedImage.setTranslateX(pressed.getX() - (draggedImage.getImage().getWidth() / 2.0));
         draggedImage.setTranslateY(pressed.getY() - (draggedImage.getImage().getHeight() / 2.0));
@@ -214,37 +107,98 @@ public class BoardController {
         container.getChildren().add(draggedImage);
     }
 
-    private void setupPossibleMoves(Position currentPos) {
+    public void resetDrag() {
+        container.getChildren().remove(draggedImage);
+        draggedImage = null;
+    }
 
-        if(possiblePositions != null) {
-            possiblePositions.forEach(pos -> chessBoardPane.toggleTile(pos));
-            possiblePositions = null;
+    private boolean isInvalidClick(Position clickedPosition) {
+        if (clickedPosition.getRow() < 0 || clickedPosition.getRow() >= getTileHeight() ||
+                clickedPosition.getCol() < 0 || clickedPosition.getCol() >= getTileWidth()) {
+            return true;
         }
 
-        ChessPiece piece = chessBoard.getPieceAt(currentPos.getRow(), currentPos.getCol());
-        possiblePositions = piece.getMovementRange(chessBoard.getPosition(currentPos.getRow(), currentPos.getCol()));
-        possiblePositions.forEach(pos -> chessBoardPane.toggleIndicator(pos));
+        if (!gameMaster.isOccupiedByColor(clickedPosition, turn)) {
+            return true;
+        }
+
+        return false;
     }
 
     public void resetSelection() {
-
-        ignoreInput = false;
-        hasSelectionHappened = false;
-
-        chessBoardPane.toggleTile(selectedPosition);
-        selectedPosition = null;
-
-        if(possiblePositions != null) {
-            possiblePositions.forEach(pos -> chessBoardPane.toggleIndicator(pos));
-            possiblePositions = null;
+        if (selectedPosition != null) {
+            chessBoardPane.toggleTile(selectedPosition);
+            List<Position> positions = gameMaster.getPossibleMoves(selectedPosition);
+            positions.forEach(p -> chessBoardPane.toggleIndicator(p));
+            selectedPosition = null;
         }
-
-        resetDrag();
     }
 
-    public void resetDrag() {
+    @Override
+    public void notifyTurn(PieceColor turn) {
+        this.turn = turn;
+        logger.info("It is now {}'s turn", turn);
+    }
 
-        container.getChildren().remove(draggedImage);
-        draggedImage = null;
+    @Override
+    public void receiveMoveResult(Move move) {
+
+        switch (move.getMoveType()) {
+            case MOVE:
+                logger.info("Move made");
+                soundManager.playSound(SoundType.MOVE);
+                break;
+            case CAPTURE:
+                logger.info("Capture made");
+                soundManager.playSound(SoundType.CAPTURE);
+                break;
+            case SELECTION:
+                logger.info("Selection made");
+                break;
+            case CHECK:
+                logger.info("Checkmate!");
+                break;
+            case INVALID:
+                logger.error("Invalid move type: {}", move.getMoveType());
+                break;
+        }
+        resetDrag();
+        this.updateBoard();
+        waitForConfirmation = false;
+    }
+
+    @Override
+    public void endTurn() {
+        gameMaster.endTurn();
+    }
+
+    @Override
+    public void updateBoard() {
+        for (int row = 0; row < getRows(); row++) {
+            for (int col = 0; col < getCols(); col++) {
+
+                Position pos = new Position(row, col);
+                chessBoardPane.get(pos).resetImage();
+                Image image = gameMaster.getPieceImage(pos);
+                chessBoardPane.get(row, col).setImage(new ImageView(image));
+
+                if( gameMaster.isTileSelected(pos) ) {
+                    chessBoardPane.toggleTile(pos);
+                }
+
+                if( gameMaster.isTileIndicator(pos) ) {
+                    chessBoardPane.toggleIndicator(pos);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void sendMove(Position originalPosition, Position newPosition) {
+        boolean isValid = gameMaster.validateMove(originalPosition, newPosition);
+        if (isValid) {
+            waitForConfirmation = true;
+            gameMaster.processInput(originalPosition, newPosition);
+        }
     }
 }

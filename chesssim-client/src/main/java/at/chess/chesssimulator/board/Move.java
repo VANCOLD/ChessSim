@@ -7,7 +7,8 @@ import lombok.Setter;
 
 /**
  * Represents a move on the chessboard, containing the original and new positions,
- * as well as the type of move being made.
+ * as well as the type of move being made. If we play locally this will be validated locally,
+ * if we play online this will be validated on the server and locally.
  * <p>
  * This class stores the necessary information about a move, including:
  * <ul>

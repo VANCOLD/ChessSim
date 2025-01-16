@@ -1,6 +1,7 @@
 package at.chess.chesssimulator.piece.movement;
 
 import at.chess.chesssimulator.board.Position;
+import at.chess.chesssimulator.board.config.ChessBoardConfig;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import lombok.Setter;
@@ -48,5 +49,14 @@ public class PawnMovement extends AbstractStrategy {
 
         logger.debug("Pawn movement - found the following possible moves: {}", possiblePositions);
         return possiblePositions;
+    }
+
+    public boolean canPromote(Position currentPosition, Position newPosition) {
+        ChessPiece piece = chessBoard.getPieceAt(currentPosition);
+        logger.info("Piece: {} Color: {}", piece.getType(), piece.getColor());
+        logger.info("New Position: {}; col: {}", newPosition, newPosition.getCol());
+        boolean canPromote = (newPosition.getCol() == 0 && piece.getColor() == WHITE)
+                             || (newPosition.getCol() == 7  && piece.getColor() == BLACK);
+        return canPromote;
     }
 }

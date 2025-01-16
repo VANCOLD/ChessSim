@@ -5,6 +5,9 @@ import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.config.ChessBoardConfig;
 import javafx.scene.paint.Color;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Utility class for operations related to positions on a chessboard.
  * <p>
@@ -150,5 +153,33 @@ public class PositionUtils {
         }
 
         return copiedPosition;
+    }
+
+    /**
+     * Gets a list of positions between two positions in a specific direction.
+     * <p>
+     * This method returns a list of positions between the start and end positions in the specified direction.
+     * The positions are calculated by adding the direction vector to the start position until the end position is reached.
+     * The start and end positions are not included in the list.
+     * The direction vector determines the direction in which the positions are generated.
+     * The method assumes that the start and end positions are on the same row.
+     *
+     * @param start     The starting position.
+     * @param end       The ending position.
+     * @param direction The direction in which to generate positions.
+     * @return A list of positions between the start and end positions in the specified direction.
+     */
+    public static List<Position> getPositionsBetweenRow(Position start, Position end, Directions direction) {
+
+        List<Position> positions = new ArrayList<>();
+
+        start = addVector(direction.getVector(), start);
+        for(;!sameCoordinates(start, end); start = addVector(direction.getVector(), start)) {
+            if(PositionUtils.isInBounds(start)) {
+                positions.add(start);
+            }
+        }
+
+        return positions;
     }
 }

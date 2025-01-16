@@ -72,6 +72,10 @@ public class ChessBoardTilePane extends StackPane {
         this.background.setFill(color);
     }
 
+    public void resetColor() {
+        this.background.setFill(this.defaultColor);
+    }
+
     public void toggleIndicator() {
         this.indicatorOn = !this.indicatorOn;
 
@@ -80,6 +84,11 @@ public class ChessBoardTilePane extends StackPane {
         } else {
             this.indicator.setFill(Color.TRANSPARENT);
         }
+    }
+
+    public void resetIndicator() {
+        this.indicatorOn = false;
+        this.indicator.setFill(Color.TRANSPARENT);
     }
 
     public boolean defaultColorSet() {

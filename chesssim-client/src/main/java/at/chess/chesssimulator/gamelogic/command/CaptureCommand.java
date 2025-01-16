@@ -1,15 +1,13 @@
 package at.chess.chesssimulator.gamelogic.command;
 
+
 import at.chess.chesssimulator.board.ChessBoard;
 import at.chess.chesssimulator.board.Move;
 
-public class CaptureCommand implements Command {
-    private final ChessBoard chessBoard;
-    private final Move move;
+public class CaptureCommand extends AbstractCommand {
 
     public CaptureCommand(ChessBoard chessBoard, Move move) {
-        this.chessBoard = chessBoard;
-        this.move = move;
+        super(chessBoard, move);
     }
 
     @Override

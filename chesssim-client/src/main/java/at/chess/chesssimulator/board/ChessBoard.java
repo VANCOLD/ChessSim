@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.Setter;
 
+import java.util.Stack;
+
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
 import static at.chess.chesssimulator.board.utils.PositionUtils.isInBounds;
 
@@ -20,6 +22,12 @@ public class ChessBoard {
     private static final Logger logger = LoggerFactory.getLogger(ChessBoard.class);
 
     private Position[][] board;
+
+    @Getter
+    private Position selectedPosition;
+    @Getter
+    private Stack<Position> indicatedPositions;
+
     @Getter
     private PieceColor turn;
     private static ChessBoard instance;
@@ -29,6 +37,8 @@ public class ChessBoard {
     private ChessBoard() {
 
         board = new Position[getRows()][getCols()];
+        this.selectedPosition = null;
+        this.indicatedPositions = new Stack<>();
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -172,12 +182,26 @@ public class ChessBoard {
     }
 
     public void selectPosition(Position pos) {
+
+        resetTile();
+
         Position toSelect = this.getPosition(pos);
         toSelect.setSelected(!toSelect.isSelected());
+        this.selectedPosition = toSelect;
     }
 
     public void toggleIndicator(Position pos) {
+
         Position toSelect = this.getPosition(pos);
-        toSelect.setIndicator(!toSelect.isIndicator());
+        toSelect.setIndicator(true);
+        this.indicatedPositions.push(toSelect);
+    }
+
+    public void resetTile() {
+        if(this.selectedPosition != null) {
+            this.selectedPosition.setSelected(false);
+            this.indicatedPositions.forEach(p -> p.setIndicator(false));
+            this.indicatedPositions.clear();
+        }
     }
 }

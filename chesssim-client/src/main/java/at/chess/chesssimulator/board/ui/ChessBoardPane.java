@@ -43,6 +43,22 @@ public class ChessBoardPane extends GridPane {
         toggleTile(pos.getRow(), pos.getCol());
     }
 
+    public void resetTile(int row, int col) {
+        tiles[row][col].resetColor();
+    }
+
+    public void resetTile(Position pos) {
+        resetTile(pos.getRow(), pos.getCol());
+    }
+
+    public void resetIndicator(int row, int col) {
+        tiles[row][col].resetIndicator();
+    }
+
+    public void resetIndicator(Position pos) {
+        resetIndicator(pos.getRow(), pos.getCol());
+    }
+
     public void toggleIndicator(int row, int col) {
         this.tiles[row][col].toggleIndicator();
     }

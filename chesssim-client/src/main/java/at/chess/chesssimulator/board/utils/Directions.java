@@ -95,23 +95,4 @@ public enum Directions {
         return new Position(x, y);
     }
 
-    /**
-     * Converts a given vector (Position) into the corresponding direction.
-     *
-     * @param position The position vector to be converted into a direction.
-     * @return The corresponding direction from the enum, or null if no match is found.
-     * @throws IllegalArgumentException if the vector does not correspond to any valid direction.
-     */
-    public static Directions getDirectionFromPosition(Position position) {
-        int x = Integer.signum(position.getRow());
-        int y = Integer.signum(position.getCol());
-
-        for (Directions direction : Directions.values()) {
-            if (direction.x == x && direction.y == y) {
-                return direction;
-            }
-        }
-
-        throw new IllegalArgumentException("Invalid vector: " + position + " does not match any direction.");
-    }
 }

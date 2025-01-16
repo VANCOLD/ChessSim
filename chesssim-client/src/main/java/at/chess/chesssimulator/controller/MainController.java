@@ -1,8 +1,6 @@
 package at.chess.chesssimulator.controller;
 
-
 import at.chess.chesssimulator.gamelogic.GameMaster;
-import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.utils.FmxlFiles;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -13,11 +11,18 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class MainController {
+
+    private Socket socket;
+    private PrintWriter writer;
+    private BufferedReader reader;
 
     @FXML
     private Button localPlay;
@@ -36,7 +41,6 @@ public class MainController {
 
     @FXML
     public void initialize() {
-
         boolean canConnect = checkServerConnection();
 
         localPlay.setOnAction(this::handleLocalPlay);
@@ -50,7 +54,6 @@ public class MainController {
         settings.setOnAction(this::handleSettings);
         exit.setOnAction(this::handleExit);
     }
-
 
     private void handleLocalPlay(ActionEvent event) {
         try {
@@ -83,31 +86,49 @@ public class MainController {
     }
 
     private void handleOnlinePlay(ActionEvent event) {
+        try {
+            // Load the new FXML file for online play
+            FXMLLoader loader = new FXMLLoader(FmxlFiles.NETWORK_BROWSER.getFile());
+            Parent newRoot = loader.load();
+
+            // Get the current stage (window) from any node (e.g., the button)
+            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+
+            // Set the new scene
+            Scene scene = new Scene(newRoot);
+            stage.setScene(scene);
+
+            // Pass the existing socket connection to the NetworkBrowserController
+            NetworkBrowserController networkController = loader.getController();
+            networkController.setSocket(socket);  // Pass the existing socket connection
+
+            stage.show();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void watchReplay(ActionEvent event) {
+        // Handle replay (no changes here)
     }
 
     private void handleSettings(ActionEvent event) {
+        // Handle settings (no changes here)
     }
 
     private void handleExit(ActionEvent event) {
         Platform.exit();
     }
 
-
     private boolean checkServerConnection() {
         String hostname = "localhost";  // Server address
         int port = 27615;                // Server port number
 
-        try (Socket socket = new Socket(hostname, port)) {
-            // Create output stream to send data to the server
-            OutputStream output = socket.getOutputStream();
-            PrintWriter writer = new PrintWriter(output, true);
-
-            // Create input stream to receive data from the server
-            InputStream input = socket.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        try {
+            socket = new Socket(hostname, port);
+            writer = new PrintWriter(socket.getOutputStream(), true);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
             // Send a message to the server
             String message = "Hello Server!";
@@ -116,7 +137,6 @@ public class MainController {
 
             // Read the server's response
             String response = reader.readLine();
-
             System.out.println("Server's response: " + response);
 
             return true;

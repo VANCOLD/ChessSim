@@ -2,6 +2,8 @@ package at.chess.chesssimulator.piece.movement;
 
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.utils.Directions;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +11,12 @@ import java.util.List;
 import static at.chess.chesssimulator.board.utils.Directions.*;
 import static at.chess.chesssimulator.board.utils.PositionUtils.*;
 
+@Getter
+@Setter
 public class RookMovement extends AbstractStrategy {
+
+    // needed for casteling
+    private boolean firstMove = true;
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {

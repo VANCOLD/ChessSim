@@ -6,19 +6,17 @@ import at.chess.chesssimulator.board.Move;
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.enums.MoveType;
 import at.chess.chesssimulator.board.utils.PositionUtils;
-import at.chess.chesssimulator.gamelogic.command.CaptureCommand;
-import at.chess.chesssimulator.gamelogic.command.Command;
-import at.chess.chesssimulator.gamelogic.command.MoveCommand;
-import at.chess.chesssimulator.gamelogic.command.SelectCommand;
+import at.chess.chesssimulator.gamelogic.command.*;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
+import at.chess.chesssimulator.piece.enums.PieceType;
+import at.chess.chesssimulator.piece.movement.KingMovement;
+import at.chess.chesssimulator.piece.movement.PawnMovement;
 import at.chess.chesssimulator.utils.FenNotation;
 import javafx.scene.image.Image;
 
 import java.util.List;
 import java.util.Stack;
-
-import static at.chess.chesssimulator.board.utils.PositionUtils.sameCoordinates;
 
 public class GameMaster {
 
@@ -27,6 +25,7 @@ public class GameMaster {
     private Player whitePlayer;
     private PieceColor turn = PieceColor.WHITE;
     private Stack<Command> commandHistory = new Stack<>();
+    private boolean inCheck;
 
     public GameMaster(Player blackPlayer, Player whitePlayer) {
         this(new FenNotation(), blackPlayer, whitePlayer);
@@ -37,6 +36,7 @@ public class GameMaster {
         this.blackPlayer = blackPlayer;
         this.whitePlayer = whitePlayer;
         this.chessBoard.loadBoard(gameState);
+        this.inCheck = false;
     }
 
     public void startGame() {
@@ -51,6 +51,11 @@ public class GameMaster {
     }
 
     public boolean validateMove(Position originalPosition, Position newPosition) {
+
+        if ( this.inCheck && chessBoard.getPieceAt(originalPosition).getType() != PieceType.KING ) {
+            return false;
+        }
+
         if (!chessBoard.isOccupied(originalPosition)) {
             return false;
         }
@@ -61,8 +66,17 @@ public class GameMaster {
             return false;
         }
 
-        return sameCoordinates(originalPosition, newPosition) ||
-                piece.getMovementStrategy().canCapture(piecePosition, newPosition) ||
+        if (chessBoard.getPieceAt(originalPosition).getType() == PieceType.KING
+            && chessBoard.getPieceAt(newPosition).getType() == PieceType.ROOK) {
+           if(  ( (KingMovement) piece.getMovementStrategy()).canQueenSideCastle(originalPosition, newPosition)) {
+               return true;
+           } else if ( ((KingMovement) piece.getMovementStrategy()).canKingSideCastle(originalPosition, newPosition)) {
+               return true;
+           }
+        }
+
+
+        return  piece.getMovementStrategy().canCapture(piecePosition, newPosition) ||
                 piece.getMovementStrategy().canMove(piecePosition, newPosition);
     }
 
@@ -78,7 +92,9 @@ public class GameMaster {
         Command command = switch (move.getMoveType()) {
             case MOVE -> new MoveCommand(chessBoard, move);
             case CAPTURE -> new CaptureCommand(chessBoard, move);
-            case SELECTION -> new SelectCommand(chessBoard, move);
+            case PROMOTE -> new PromotionCommand(chessBoard, move);
+            case QCASTELING -> new QueenCastelingCommand(chessBoard, move);
+            case KCASTELING -> new KingCastelingCommand(chessBoard, move);
             default -> null;
         };
 
@@ -152,13 +168,24 @@ public class GameMaster {
             return;
         }
 
-        Move move;
-        if (sameCoordinates(originalPosition, newPosition)) {
-            move = new Move(originalPosition, newPosition, MoveType.SELECTION);
+        Move move = null;
+
+        if (piece.getType() == PieceType.KING) {
+            if( ((KingMovement) piece.getMovementStrategy()).canQueenSideCastle(originalPosition, newPosition) ) {
+                move = new Move(originalPosition, newPosition, MoveType.QCASTELING);
+            } else if( ((KingMovement) piece.getMovementStrategy()).canKingSideCastle(originalPosition, newPosition) ) {
+                move = new Move(originalPosition, newPosition, MoveType.KCASTELING);
+            }
         } else if (piece.getMovementStrategy().canCapture(originalPosition, newPosition)) {
             move = new Move(originalPosition, newPosition, MoveType.CAPTURE);
         } else if (piece.getMovementStrategy().canMove(originalPosition, newPosition)) {
-            move = new Move(originalPosition, newPosition, MoveType.MOVE);
+
+            if( piece.getType() == PieceType.PAWN && ((PawnMovement) piece.getMovementStrategy()).canPromote( originalPosition, newPosition) ) {
+                    move = new Move(originalPosition, newPosition, MoveType.PROMOTE);
+            } else {
+                move = new Move(originalPosition, newPosition, MoveType.MOVE);
+            }
+
         } else {
             move = new Move(originalPosition, newPosition, MoveType.INVALID);
         }
@@ -176,5 +203,19 @@ public class GameMaster {
 
     public boolean isTileSelected(Position pos) {
         return chessBoard.getPosition(pos).isSelected();
+    }
+
+    public void selectTile(Position selectedPosition) {
+
+        Position pos = chessBoard.getPosition(selectedPosition);
+        chessBoard.selectPosition(pos);
+        pos.getPiece()
+            .getMovementStrategy()
+            .getPossibleMoves(pos)
+            .forEach(p -> chessBoard.toggleIndicator(p));
+    }
+
+    public void resetTile() {
+        chessBoard.resetTile();
     }
 }

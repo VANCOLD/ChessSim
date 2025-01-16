@@ -20,6 +20,7 @@ public class Main extends Application {
         Parent root = FXMLLoader.load(FmxlFiles.MAIN.getFile());
         primaryStage.setTitle("Chessboard Application");
         primaryStage.setScene(new Scene(root));
+        primaryStage.setResizable(false);
 
         logger.info("Loading MainController into JavaFX stage");
         primaryStage.show();

@@ -20,11 +20,13 @@ public class SoundManager {
         logger.info("Creating SoundManager");
         sounds = new HashMap<>();
 
+        sounds.put(SoundType.GAME_START, new Sound("/sounds/game-start.mp3"));
         sounds.put(SoundType.MOVE, new Sound("/sounds/move-self.mp3"));
         sounds.put(SoundType.CAPTURE, new Sound("/sounds/capture.mp3"));
         sounds.put(SoundType.PROMOTE, new Sound("/sounds/promote.mp3"));
         sounds.put(SoundType.CASTLE, new Sound("/sounds/castle.mp3"));
-        sounds.put(SoundType.CHECKMATE, new Sound("/sounds/move-check.mp3"));
+        sounds.put(SoundType.CHECKMATE, new Sound("/sounds/checkmate.mp3"));
+        sounds.put(SoundType.CHECK, new Sound("/sounds/move-check.mp3"));
 
         logger.info("Successfully loaded the following sounds: {}", String.join(", ", sounds.keySet().stream().map(SoundType::name).toList()));
     }

@@ -41,6 +41,7 @@ public class MainController {
 
     @FXML
     public void initialize() {
+
         boolean canConnect = checkServerConnection();
 
         localPlay.setOnAction(this::handleLocalPlay);
@@ -76,6 +77,7 @@ public class MainController {
             GameMaster gameMaster = new GameMaster(boardController, boardController);
             boardController.setGameMaster(gameMaster);
             boardController.setOnlyOnePlayer(false);
+            boardController.setStage(stage);
             gameMaster.startGame();
 
             stage.show();
@@ -148,5 +150,45 @@ public class MainController {
         }
 
         return false;
+    }
+
+    public static void loadStage(FmxlFiles file) {
+        switch(file) {
+            case MAIN:
+                try {
+                    FXMLLoader loader = new FXMLLoader(file.getFile());
+                    Parent root = loader.load();
+                    Stage stage = new Stage();
+                    stage.setScene(new Scene(root));
+                    stage.setTitle("Chess Simulator");
+                    stage.show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+            case BOARD:
+                try {
+                    FXMLLoader loader = new FXMLLoader(file.getFile());
+                    Parent root = loader.load();
+                    // Set the new scene
+                    Scene scene = new Scene(root);
+                    Stage stage = new Stage();
+                    stage.setScene(scene);
+
+                    // Optionally, set the stage title and show it again
+                    stage.setTitle("Local Play");
+
+                    // Get the BoardController and set the players
+                    BoardController boardController = loader.getController();
+                    GameMaster gameMaster = new GameMaster(boardController, boardController);
+                    boardController.setGameMaster(gameMaster);
+                    boardController.setOnlyOnePlayer(false);
+                    boardController.setStage(stage);
+                    gameMaster.startGame();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                break;
+        }
     }
 }

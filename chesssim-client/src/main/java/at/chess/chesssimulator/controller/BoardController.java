@@ -1,5 +1,6 @@
 package at.chess.chesssimulator.controller;
 
+import at.chess.chesssimulator.board.ChessBoard;
 import at.chess.chesssimulator.board.Move;
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.enums.MoveType;
@@ -9,18 +10,22 @@ import at.chess.chesssimulator.gamelogic.Player;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.sound.SoundManager;
 import at.chess.chesssimulator.sound.SoundType;
+import at.chess.chesssimulator.utils.FmxlFiles;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 
+import javafx.stage.Stage;
 import lombok.Getter;
 import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static at.chess.chesssimulator.board.ChessBoard.resetInstance;
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
+import static at.chess.chesssimulator.piece.movement.MovementStrategyRegistry.reloadChessBoard;
 
 public class BoardController implements Player {
 
@@ -35,6 +40,7 @@ public class BoardController implements Player {
     private Position selectedPosition;
     private boolean ignoreInput;
     private PieceColor turn;
+    private MouseInputHandler mouseInputHandler;
 
     @Setter
     private boolean onlyOnePlayer;
@@ -46,15 +52,18 @@ public class BoardController implements Player {
     @FXML
     private ChessBoardPane chessBoardPane;
     private boolean waitForConfirmation;
+    @Setter
+    private Stage stage;
 
     @FXML
     public void initialize() {
         soundManager = SoundManager.getInstance();
         setMouseHandlers();
+        soundManager.playSound(SoundType.GAME_START);
     }
 
     private void setMouseHandlers() {
-        MouseInputHandler mouseInputHandler = new MouseInputHandler();
+        mouseInputHandler = new MouseInputHandler();
         chessBoardPane.setOnMousePressed(mouseInputHandler::mousePressed);
         chessBoardPane.setOnMouseReleased(mouseInputHandler::mouseReleased);
         chessBoardPane.setOnMouseDragged(mouseInputHandler::mouseMoved);
@@ -69,6 +78,40 @@ public class BoardController implements Player {
 
     @Override
     public void receiveMoveResult(Move move) {
+
+        logger.info("Move result: {}", move.getMoveType());
+
+        if(move.getMoveType() == MoveType.CHECKMATE) {
+
+            soundManager.playSound(SoundType.getSound(move.getMoveType()));
+            this.endTurn();
+            this.updateBoard();
+            waitForConfirmation = false;
+            this.mouseInputHandler.resetDrag();
+            resetInstance(); // resetting the chessboard
+            reloadChessBoard(); // reloading the chessboard for the movement generation
+
+            WinPopup winPopup = new WinPopup();
+            WinPopup.ButtonChoice choice = winPopup.showWinPopup(turn, gameMaster.getCommandHistory());
+
+            switch (choice) {
+                case REMATCH:
+                    MainController.loadStage(FmxlFiles.BOARD);
+                    gameMaster.setChessBoard(ChessBoard.getInstance());
+                    gameMaster.startGame();
+                    this.updateBoard();
+                    System.out.println("Rematch started!");
+                    break;
+                case CLOSE:
+                    MainController.loadStage(FmxlFiles.MAIN);
+                    this.stage.close();
+                    break;
+                default:
+                    System.out.println("Unknown choice");
+            }
+
+            return;
+        }
 
         if (move.getMoveType() == MoveType.INVALID) {
             logger.error("Invalid move type: {}", move.getMoveType());
@@ -98,10 +141,14 @@ public class BoardController implements Player {
                 Image image = gameMaster.getPieceImage(pos);
                 chessBoardPane.get(row, col).setImage(new ImageView(image));
 
-                if (gameMaster.isTileSelected(pos)) {
+                if(gameMaster.isTileSelected(pos)) {
                     chessBoardPane.toggleTile(pos);
+                    chessBoardPane.opacity(pos, 0.5);
+                } else if(gameMaster.isTileInCheck(pos)) {
+                    chessBoardPane.setCheck(pos);
                 } else {
                     chessBoardPane.resetTile(pos);
+                    chessBoardPane.resetOpacity(pos);
                 }
 
                 if(gameMaster.isTileIndicator(pos)) {
@@ -115,11 +162,8 @@ public class BoardController implements Player {
 
     @Override
     public void sendMove(Position originalPosition, Position newPosition) {
-        boolean isValid = gameMaster.validateMove(originalPosition, newPosition);
-        if (isValid) {
-            waitForConfirmation = true;
-            gameMaster.processInput(originalPosition, newPosition);
-        }
+        waitForConfirmation = true;
+        gameMaster.processInput(originalPosition, newPosition);
     }
 
 
@@ -135,6 +179,14 @@ public class BoardController implements Player {
             }
 
             if (gameMaster.isOccupiedByColor(clickedPosition, turn)) {
+
+                if(gameMaster.amIInCheck(turn)) {
+                    if(!gameMaster.isMyKing(clickedPosition)) {
+                        ignoreInput = true;
+                        return;
+                    }
+                }
+
                 selectedPosition = clickedPosition;
                 prepareDragImage(clickedPosition, pressed);
                 gameMaster.selectTile(clickedPosition);
@@ -155,16 +207,10 @@ public class BoardController implements Player {
             Position releasedPosition = getPositionFromMouseEvent(released);
             logger.info("Released tile at position: {}", releasedPosition);
 
-            if (gameMaster.validateMove(selectedPosition, releasedPosition)) {
-                logger.info("Valid move from {} to {}", selectedPosition, releasedPosition);
-                sendMove(selectedPosition, releasedPosition);
-                selectedPosition = null;
-            } else {
-                logger.info("Invalid move, deselecting piece at {}", selectedPosition);
-                selectedPosition = null;
-                gameMaster.resetTile();
-                updateBoard();
-            }
+            sendMove(selectedPosition, releasedPosition);
+            selectedPosition = null;
+            gameMaster.resetTile();
+            updateBoard();
 
             resetDrag();
         }

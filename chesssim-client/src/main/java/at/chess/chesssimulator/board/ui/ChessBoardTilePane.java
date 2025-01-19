@@ -115,4 +115,11 @@ public class ChessBoardTilePane extends StackPane {
         this.image.setOpacity(1.0);
     }
 
+    public void setCheck(boolean inCheck) {
+        if(inCheck) {
+            this.background.setFill(getCheckedTileColor());
+        } else {
+            this.resetColor();
+        }
+    }
 }

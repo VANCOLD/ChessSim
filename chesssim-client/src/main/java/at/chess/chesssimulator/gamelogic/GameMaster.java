@@ -1,4 +1,3 @@
-// src/main/java/at/chess/chesssimulator/gamelogic/GameMaster.java
 package at.chess.chesssimulator.gamelogic;
 
 import at.chess.chesssimulator.board.ChessBoard;
@@ -10,20 +9,30 @@ import at.chess.chesssimulator.gamelogic.command.*;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
-import at.chess.chesssimulator.piece.movement.KingMovement;
-import at.chess.chesssimulator.piece.movement.PawnMovement;
+import at.chess.chesssimulator.piece.movement.KingMovementStrategy;
+import at.chess.chesssimulator.piece.movement.PawnMovementStrategy;
 import at.chess.chesssimulator.utils.FenNotation;
 import javafx.scene.image.Image;
+import lombok.Getter;
+import lombok.Setter;
 
-import java.util.List;
+
 import java.util.Stack;
+
+import static at.chess.chesssimulator.board.enums.MoveType.CHECK;
+import static at.chess.chesssimulator.board.utils.PositionUtils.sameCoordinates;
+import static at.chess.chesssimulator.piece.enums.PieceType.KING;
+import static at.chess.chesssimulator.piece.enums.PieceType.ROOK;
+import static at.chess.chesssimulator.piece.movement.MovementStrategyRegistry.getStrategy;
 
 public class GameMaster {
 
+    @Setter
     private ChessBoard chessBoard;
     private Player blackPlayer;
     private Player whitePlayer;
     private PieceColor turn = PieceColor.WHITE;
+    @Getter
     private Stack<Command> commandHistory = new Stack<>();
     private boolean inCheck;
 
@@ -52,7 +61,7 @@ public class GameMaster {
 
     public boolean validateMove(Position originalPosition, Position newPosition) {
 
-        if ( this.inCheck && chessBoard.getPieceAt(originalPosition).getType() != PieceType.KING ) {
+        if ( this.inCheck && chessBoard.getPieceAt(originalPosition).getType() != KING ) {
             return false;
         }
 
@@ -66,18 +75,23 @@ public class GameMaster {
             return false;
         }
 
-        if (chessBoard.getPieceAt(originalPosition).getType() == PieceType.KING
-            && chessBoard.getPieceAt(newPosition).getType() == PieceType.ROOK) {
-           if(  ( (KingMovement) piece.getMovementStrategy()).canQueenSideCastle(originalPosition, newPosition)) {
-               return true;
-           } else if ( ((KingMovement) piece.getMovementStrategy()).canKingSideCastle(originalPosition, newPosition)) {
-               return true;
-           }
+        if(newPosition.containsPiece()) {
+            if (chessBoard.getPieceAt(originalPosition).getType() == KING
+                && chessBoard.getPieceAt(newPosition).getType() == ROOK) {
+
+                KingMovementStrategy strategy = (KingMovementStrategy) getStrategy(KING);
+
+                if (strategy.canQueenSideCastle(newPosition)) {
+                    return true;
+                } else if (strategy.canKingSideCastle(newPosition)) {
+                    return true;
+                }
+            }
         }
 
 
-        return  piece.getMovementStrategy().canCapture(piecePosition, newPosition) ||
-                piece.getMovementStrategy().canMove(piecePosition, newPosition);
+        return  getStrategy(piece.getType()).canCapture(piecePosition, newPosition) ||
+                getStrategy(piece.getType()).canMove(piecePosition, newPosition);
     }
 
     public void makeMove(Move move) {
@@ -93,12 +107,18 @@ public class GameMaster {
             case MOVE -> new MoveCommand(chessBoard, move);
             case CAPTURE -> new CaptureCommand(chessBoard, move);
             case PROMOTE -> new PromotionCommand(chessBoard, move);
-            case QCASTELING -> new QueenCastelingCommand(chessBoard, move);
-            case KCASTELING -> new KingCastelingCommand(chessBoard, move);
+            case QCASTLING -> new QueenCastelingCommand(chessBoard, move);
+            case KCASTLING -> new KingCastelingCommand(chessBoard, move);
+            case CHECK -> new CheckCommand(chessBoard, move);
+            case CHECKMATE -> new CheckmateCommand(chessBoard, move);
             default -> null;
         };
 
-        assert command != null;
+        chessBoard.setCheck(move.getMoveType() == CHECK || move.getMoveType() == MoveType.CHECKMATE);
+        if(!chessBoard.isInCheck()) {
+            chessBoard.getPosition(move.getOriginalPosition()).setInCheck(false);
+        }
+
         command.execute();
         commandHistory.push(command);
     }
@@ -112,21 +132,6 @@ public class GameMaster {
         }
     }
 
-    private void updateActivePlayer(Move move) {
-        switch (turn) {
-            case WHITE:
-                whitePlayer.updateBoard();
-                whitePlayer.notifyTurn(PieceColor.BLACK);
-                blackPlayer.notifyTurn(PieceColor.BLACK);
-                break;
-            case BLACK:
-                blackPlayer.updateBoard();
-                blackPlayer.notifyTurn(PieceColor.WHITE);
-                whitePlayer.notifyTurn(PieceColor.WHITE);
-                break;
-        }
-    }
-
     public boolean isOccupiedByColor(Position pos, PieceColor color) {
         return chessBoard.isOccupiedByColor(pos, color);
     }
@@ -136,18 +141,14 @@ public class GameMaster {
         return piece != null ? piece.getImage() : null;
     }
 
-    public List<Position> getPossibleMoves(Position pos) {
-        ChessPiece piece = chessBoard.getPieceAt(pos);
-        return piece != null ? piece.getMovementRange(chessBoard.getPosition(pos.getRow(), pos.getCol())) : List.of();
-    }
-
     public void endTurn() {
-        turn = (turn == PieceColor.WHITE) ? PieceColor.BLACK : PieceColor.WHITE;
+        turn = PieceColor.getOppositeColor(turn);
         if (turn == PieceColor.WHITE) {
             whitePlayer.notifyTurn(PieceColor.WHITE);
         } else {
             blackPlayer.notifyTurn(PieceColor.BLACK);
         }
+        chessBoard.setTurn(turn);
     }
 
     public void processInput(Position originalPosition, Position newPosition) {
@@ -170,17 +171,26 @@ public class GameMaster {
 
         Move move = null;
 
-        if (piece.getType() == PieceType.KING) {
-            if( ((KingMovement) piece.getMovementStrategy()).canQueenSideCastle(originalPosition, newPosition) ) {
-                move = new Move(originalPosition, newPosition, MoveType.QCASTELING);
-            } else if( ((KingMovement) piece.getMovementStrategy()).canKingSideCastle(originalPosition, newPosition) ) {
-                move = new Move(originalPosition, newPosition, MoveType.KCASTELING);
-            }
-        } else if (piece.getMovementStrategy().canCapture(originalPosition, newPosition)) {
-            move = new Move(originalPosition, newPosition, MoveType.CAPTURE);
-        } else if (piece.getMovementStrategy().canMove(originalPosition, newPosition)) {
+        if (piece.getType() == KING) {
 
-            if( piece.getType() == PieceType.PAWN && ((PawnMovement) piece.getMovementStrategy()).canPromote( originalPosition, newPosition) ) {
+            KingMovementStrategy kingStrategy = (KingMovementStrategy) getStrategy(KING);
+
+            if( kingStrategy.canQueenSideCastle(newPosition) ) {
+                move = new Move(originalPosition, newPosition, MoveType.QCASTLING);
+            } else if( kingStrategy.canKingSideCastle(newPosition) ) {
+                move = new Move(originalPosition, newPosition, MoveType.KCASTLING);
+            } else {
+                move = new Move(originalPosition, newPosition, MoveType.MOVE);
+            }
+        } else if (getStrategy(piece.getType()).canCapture(originalPosition, newPosition)) {
+            move = new Move(originalPosition, newPosition, MoveType.CAPTURE);
+        } else if (getStrategy(piece.getType()).canMove(originalPosition, newPosition)) {
+
+            if (isCheckmate(originalPosition.getPiece(), newPosition)) {
+                move = new Move(originalPosition, newPosition, MoveType.CHECKMATE);
+            } else if (isCheck(originalPosition.getPiece(), newPosition)) {
+                move = new Move(originalPosition, newPosition, CHECK);
+            } else if ( piece.getType() == PieceType.PAWN && ((PawnMovementStrategy) getStrategy(piece.getType())).canPromote( originalPosition, newPosition) ) {
                     move = new Move(originalPosition, newPosition, MoveType.PROMOTE);
             } else {
                 move = new Move(originalPosition, newPosition, MoveType.MOVE);
@@ -192,9 +202,20 @@ public class GameMaster {
 
 
         if (move.getMoveType() != MoveType.INVALID) {
+
             makeMove(move);
             getActivePlayer().receiveMoveResult(move);
-        }
+       }
+    }
+
+    private boolean isCheckmate(ChessPiece piece, Position piecePosition) {
+        PieceType kingType = chessBoard.getKingPosition(turn).getPiece().getType();
+        return ((KingMovementStrategy) getStrategy(kingType)).isCheckmate(piece, piecePosition);
+    }
+
+    private boolean isCheck(ChessPiece piece, Position piecePosition) {
+        PieceType kingType = chessBoard.getKingPosition(turn).getPiece().getType();
+        return ((KingMovementStrategy) getStrategy(kingType)).isCheck(piece, piecePosition);
     }
 
     public boolean isTileIndicator(Position pos) {
@@ -209,13 +230,24 @@ public class GameMaster {
 
         Position pos = chessBoard.getPosition(selectedPosition);
         chessBoard.selectPosition(pos);
-        pos.getPiece()
-            .getMovementStrategy()
+        getStrategy(pos.getPiece().getType())
             .getPossibleMoves(pos)
             .forEach(p -> chessBoard.toggleIndicator(p));
     }
 
     public void resetTile() {
         chessBoard.resetTile();
+    }
+
+    public boolean isTileInCheck(Position pos) {
+        return chessBoard.getPosition(pos).isInCheck();
+    }
+
+    public boolean amIInCheck(PieceColor turn) {
+        return chessBoard.isInCheck() && chessBoard.getTurn() == turn;
+    }
+
+    public boolean isMyKing(Position clickedPosition) {
+        return sameCoordinates(chessBoard.getKingPosition(turn), clickedPosition);
     }
 }

@@ -2,6 +2,8 @@ package at.chess.chesssimulator.piece.movement;
 
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.utils.Directions;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,32 +11,33 @@ import java.util.List;
 import static at.chess.chesssimulator.board.utils.Directions.*;
 import static at.chess.chesssimulator.board.utils.PositionUtils.*;
 
-public class BishopMovement extends AbstractStrategy {
+@Getter
+@Setter
+public class RookMovementStrategy extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
 
         List<Position> possiblePositions = new ArrayList<>();
-        // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyways with 1 call
-        addDiagonalMoves(possiblePositions, curPos, UP_LEFT);
-        addDiagonalMoves(possiblePositions, curPos, UP_RIGHT);
+        // choosing either left / up or down and right is fine, it will check each direction anyways with 1 call
+        addStraightLineMoves(possiblePositions, curPos, LEFT);
+        addStraightLineMoves(possiblePositions, curPos, UP);
 
-        // Removing the place where the bishop is standing
+        // Removing the place where the rook is standing
         possiblePositions.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()
                 && toCheck.getCol() == curPos.getCol());
 
-        logger.debug("Bishop movement - found the following possible moves: {}", possiblePositions);
+        logger.debug("Rook movement - found the following possible moves: {}", possiblePositions);
         return possiblePositions;
     }
 
-    protected static void addDiagonalMoves(List<Position> positions, Position curPos, Directions direction) {
-
+    protected static void addStraightLineMoves(List<Position> positions, Position curPos, Directions direction) {
         Position bound = getBound(direction, curPos);
         Position oppositeBound = getBound(getOppositeDirection(direction), curPos);
         Position addVector = getOppositeDirectionAsVector(direction);
         oppositeBound = addVector(oppositeBound, addVector); // the bound must be inclusive!
 
-        logger.debug("Bishop movement - {} lower bound {} / upper bound {}", direction, bound, oppositeBound);
+        logger.debug("Rook movement - {} lower bound {} / upper bound {}", direction, bound, oppositeBound);
 
         Position posBuff = new Position(bound.getRow(), bound.getCol());
         do {

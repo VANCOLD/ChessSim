@@ -26,6 +26,8 @@ import static at.chess.chesssimulator.utils.Constants.PLACEHOLDER_IMAGE;
  * If a config file is found at the specified location, the class loads properties from the file and overwrites
  * the default values. If no config file is found or an error occurs, the class uses default values defined in the static block.
  * </p>
+ *
+ * I need to denote the getter on the instance variables, otherwise Lombok will not generate the getters.
  */
 @AllArgsConstructor
 public class ChessBoardConfig {
@@ -45,6 +47,7 @@ public class ChessBoardConfig {
     private static final Color TILE_COLOR_2 = Color.web("#A17960");
     private static final Color SELECTED_TILE_COLOR = Color.web("#61673F");
     private static final Color POSSIBLE_MOVE_COLOR = Color.web("#7A8254");
+    private static final Color CHECKED_TILE_COLOR = Color.web("#F33E42");
 
     // Configuration property keys for the external config file
     private static final String TILE_WIDTH_NAME = "tile_width";
@@ -57,6 +60,7 @@ public class ChessBoardConfig {
     private static final String SELECTED_TILE_COLOR_NAME = "selected_tile_color";
     private static final String POSSIBLE_MOVE_COLOR_NAME = "possible_move_color";
     private static final String PLACEHOLDER_IMAGE_NAME = "placeholder_image";
+    private static final String CHECKED_TILE_COLOR_NAME = "checked_tile_color";
 
     // Loaded or default configuration values
     @Getter
@@ -66,7 +70,7 @@ public class ChessBoardConfig {
     private static double dragOpacity;
 
     @Getter
-    private static Color tileColor1, tileColor2, selectedTileColor, possibleMoveColor;
+    private static Color tileColor1, tileColor2, selectedTileColor, possibleMoveColor, checkedTileColor;
     @Getter
     private static String placeholderImage;
 
@@ -83,10 +87,11 @@ public class ChessBoardConfig {
         selectedTileColor = SELECTED_TILE_COLOR;
         possibleMoveColor = POSSIBLE_MOVE_COLOR;
         placeholderImage = PLACEHOLDER_IMAGE;
+        checkedTileColor = CHECKED_TILE_COLOR;
 
         logger.info("Legend: tileWidth - tileHeight - rows - cols - opacity - tileColor1 - tileColor2 - selectedTileColor - possibleMoveColor");
-        logger.info("Default values: {} - {} - {} - {} - {} - {} - {} - {} - {}", tileWidth, tileHeight, rows, cols, dragOpacity,
-                tileColor1, tileColor2, selectedTileColor, possibleMoveColor);
+        logger.info("Default values: {} - {} - {} - {} - {} - {} - {} - {} - {} - {}", tileWidth, tileHeight, rows, cols, dragOpacity,
+                tileColor1, tileColor2, selectedTileColor, possibleMoveColor, checkedTileColor);
 
         // Attempt to load configuration from external file
         loadConfig();
@@ -101,8 +106,10 @@ public class ChessBoardConfig {
      * </p>
      */
     private static void loadConfig() {
+
         logger.info("Trying to load config from {}", CONFIG_LOCATION);
         File configFile = new File(CONFIG_LOCATION);
+
 
         if (!configFile.exists()) {
             logger.warn("Config file not found in {}. Using default configuration.", CONFIG_LOCATION);
@@ -114,7 +121,7 @@ public class ChessBoardConfig {
             Properties prop = new Properties();
             prop.load(input);
 
-            // Parse and assign the values from the properties file
+            // Parse and assign the values from the properties file; The values are predefined and others are ignored
             tileWidth = Integer.parseInt(prop.getProperty(TILE_WIDTH_NAME, "" + tileWidth));
             tileHeight = Integer.parseInt(prop.getProperty(TILE_HEIGHT_NAME, "" + tileHeight));
             rows = Integer.parseInt(prop.getProperty(ROWS_NAME, "" + rows));
@@ -125,6 +132,7 @@ public class ChessBoardConfig {
             selectedTileColor = Color.web(prop.getProperty(SELECTED_TILE_COLOR_NAME, selectedTileColor.toString()));
             possibleMoveColor = Color.web(prop.getProperty(POSSIBLE_MOVE_COLOR_NAME, possibleMoveColor.toString()));
             placeholderImage = prop.getProperty(PLACEHOLDER_IMAGE_NAME);
+            checkedTileColor = Color.web(prop.getProperty(CHECKED_TILE_COLOR_NAME, checkedTileColor.toString()));
 
             logger.info("Config loaded from external file.");
         } catch (IOException | NumberFormatException ex) {

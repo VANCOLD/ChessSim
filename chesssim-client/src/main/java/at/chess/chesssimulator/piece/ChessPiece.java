@@ -28,28 +28,28 @@ public class ChessPiece implements Cloneable {
     /** The visual representation of the chess piece. */
     private final Image image;
 
-    /** The strategy used to determine valid movements for this chess piece. */
-    protected final MovementStrategy movementStrategy;
-
     /** The color of the chess piece (either black or white). */
     private final PieceColor color;
 
     /** The type of the chess piece (e.g., pawn, rook, etc.). */
     private final PieceType type;
 
+    /** Defines if a piece has taken a move (needed for casteling / pawn double move). */
+    @Setter
+    private boolean firstMove;
+
     /**
      * Constructs a chess piece with the specified properties.
      *
      * @param image            The image representation of the chess piece.
-     * @param movementStrategy The movement strategy associated with this piece.
      * @param color            The color of the chess piece.
      * @param type             The type of the chess piece.
      */
-    protected ChessPiece(Image image, MovementStrategy movementStrategy, PieceColor color, PieceType type) {
+    protected ChessPiece(Image image, PieceColor color, PieceType type) {
         this.image = image;
-        this.movementStrategy = movementStrategy;
         this.color = color;
         this.type = type;
+        this.firstMove = true;
     }
 
     /**
@@ -68,26 +68,7 @@ public class ChessPiece implements Cloneable {
         String pieceName = type.name().toLowerCase();
         Image pieceImage = PngLoader.getInstance().getImage(colorName, "_", pieceName, ".png");
 
-        MovementStrategy movement = switch(type) {
-            case PAWN -> new PawnMovement();
-            case ROOK -> new RookMovement();
-            case KING -> new KingMovement();
-            case QUEEN -> new QueenMovement();
-            case BISHOP -> new BishopMovement();
-            case KNIGHT -> new KnightMovement();
-        };
-
-        return new ChessPiece(pieceImage, movement, color, type);
-    }
-
-    /**
-     * Retrieves the possible movement range for the chess piece based on its current position.
-     *
-     * @param posToCheck The position of the piece for which to calculate the movement range.
-     * @return A list of possible {@link Position} instances that the piece can move to.
-     */
-    public List<Position> getMovementRange(Position posToCheck) {
-        return this.movementStrategy.getPossibleMoves(posToCheck);
+        return new ChessPiece(pieceImage, color, type);
     }
 
 

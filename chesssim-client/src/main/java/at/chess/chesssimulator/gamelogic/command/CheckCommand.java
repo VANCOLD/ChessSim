@@ -11,11 +11,13 @@ public class CheckCommand extends AbstractCommand{
 
     @Override
     public void execute() {
-
+        chessBoard.movePiece(move.getOriginalPosition(), move.getNewPosition());
+        chessBoard.setCheck(true);
     }
 
     @Override
     public void undo() {
-
+        chessBoard.movePiece(move.getNewPosition(), move.getOriginalPosition());
+        chessBoard.setCheck(false);
     }
 }

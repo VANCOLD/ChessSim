@@ -21,10 +21,12 @@ public class PromotionCommand extends AbstractCommand {
         promotionPopup.setInitialState(pawn.getColor());
         String selectedPiece = promotionPopup.showPromotionPopup();
 
-
-        ChessPiece piece = ChessPiece.generateChessPiece(pawn.getColor(), PieceType.getPieceType(selectedPiece.toLowerCase().charAt(0)));
+        char pieceType = selectedPiece.toLowerCase().charAt(0);
+        ChessPiece piece = ChessPiece.generateChessPiece(pawn.getColor(), PieceType.getPieceType(pieceType));
         chessBoard.clearPosition(move.getOriginalPosition());
         chessBoard.placePiece(move.getNewPosition(), piece);
+
+        move.setExtraData("" + pieceType);
     }
 
     @Override

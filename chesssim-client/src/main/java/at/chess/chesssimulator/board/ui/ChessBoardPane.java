@@ -90,4 +90,13 @@ public class ChessBoardPane extends GridPane {
     public ChessBoardTilePane get(Position pos) {
         return get(pos.getRow(), pos.getCol());
     }
+
+    public void setCheck(Position pos) {
+        setCheck(pos.getRow(), pos.getCol());
+    }
+
+    public void setCheck(int row, int col) {
+        tiles[row][col].setCheck(true);
+    }
+
 }

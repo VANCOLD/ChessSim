@@ -7,7 +7,7 @@ import java.util.List;
 import static at.chess.chesssimulator.board.utils.Directions.*;
 import static at.chess.chesssimulator.board.utils.PositionUtils.*;
 
-public class KnightMovement extends AbstractStrategy {
+public class KnightMovementStrategy extends AbstractStrategy {
 
     private static final Position[] KNIGHT_MOVES = {
             addVector(UP.getVector(), UP_LEFT.getVector()),
@@ -22,6 +22,7 @@ public class KnightMovement extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
+
         List<Position> possiblePositions = new ArrayList<>();
         for (Position move : KNIGHT_MOVES) {
             Position newPos = addVector(curPos, move);

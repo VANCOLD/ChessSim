@@ -7,7 +7,7 @@ import java.util.List;
 
 import static at.chess.chesssimulator.board.utils.Directions.*;
 
-public class QueenMovement extends AbstractStrategy {
+public class QueenMovementStrategy extends AbstractStrategy {
 
     @Override
     public List<Position> getPossibleMoves(Position curPos) {
@@ -15,13 +15,13 @@ public class QueenMovement extends AbstractStrategy {
 
         // Add straight-line moves
         // choosing either left / up or down and right is fine, it will check each direction anyways with 1 call
-        RookMovement.addStraightLineMoves(possiblePositions, curPos, LEFT);
-        RookMovement.addStraightLineMoves(possiblePositions, curPos, UP);
+        RookMovementStrategy.addStraightLineMoves(possiblePositions, curPos, LEFT);
+        RookMovementStrategy.addStraightLineMoves(possiblePositions, curPos, UP);
 
         // Add diagonal moves
         // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyways with 1 call
-        BishopMovement.addDiagonalMoves(possiblePositions, curPos, UP_LEFT);
-        BishopMovement.addDiagonalMoves(possiblePositions, curPos, UP_RIGHT);
+        BishopMovementStrategy.addDiagonalMoves(possiblePositions, curPos, UP_LEFT);
+        BishopMovementStrategy.addDiagonalMoves(possiblePositions, curPos, UP_RIGHT);
 
         // Removing the place where the queen is standing
         possiblePositions.removeIf(toCheck -> toCheck.getRow() == curPos.getRow()

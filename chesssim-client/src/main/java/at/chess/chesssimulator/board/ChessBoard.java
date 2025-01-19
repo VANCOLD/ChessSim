@@ -3,13 +3,14 @@ package at.chess.chesssimulator.board;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
-import at.chess.chesssimulator.piece.movement.PawnMovement;
 import at.chess.chesssimulator.utils.FenNotation;
 import lombok.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import static at.chess.chesssimulator.board.config.ChessBoardConfig.*;
@@ -32,13 +33,17 @@ public class ChessBoard {
     private PieceColor turn;
     private static ChessBoard instance;
 
+    @Setter
+    @Getter
+    private boolean inCheck;
 
-
+    
     private ChessBoard() {
 
         board = new Position[getRows()][getCols()];
         this.selectedPosition = null;
         this.indicatedPositions = new Stack<>();
+        this.inCheck = false;
 
         for (int i = 0; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -47,6 +52,10 @@ public class ChessBoard {
             }
         }
         logger.info("Created ChessBoard with {} rows and {} columns", getRows(), getCols());
+    }
+
+    public static void resetInstance() {
+        instance = null;
     }
 
     public void loadBoard(FenNotation fen) {
@@ -72,7 +81,6 @@ public class ChessBoard {
         }
         return instance; // Return the single instance
     }
-
 
     public void placePiece(int row, int col, ChessPiece piece) {
         if(isInBounds(row, col)) {
@@ -148,8 +156,8 @@ public class ChessBoard {
             clearPosition(originalPosition);
             placePiece(newPosition, piece);
 
-            if (piece.getType() == PieceType.PAWN) {
-                ((PawnMovement) piece.getMovementStrategy()).setFirstMove(false);
+            if (piece.isFirstMove()) {
+                piece.setFirstMove(false);
             }
         }
     }
@@ -161,9 +169,8 @@ public class ChessBoard {
             clearPosition(capturePosition);
             placePiece(capturePosition, piece);
 
-            if (piece.getType() == PieceType.PAWN) {
-                // This seems redundant but if the pawn hasnt moved and it's first move is a capture we have this extra if clause
-                ((PawnMovement) piece.getMovementStrategy()).setFirstMove(false);
+            if (piece.isFirstMove()) {
+                piece.setFirstMove(false);
             }
         }
     }
@@ -203,5 +210,12 @@ public class ChessBoard {
             this.indicatedPositions.forEach(p -> p.setIndicator(false));
             this.indicatedPositions.clear();
         }
+    }
+
+
+    public void setCheck(boolean inCheck) {
+        this.inCheck = inCheck;
+        PieceColor playerInCheck = PieceColor.getOppositeColor(turn);
+        this.getKingPosition(playerInCheck).setInCheck(inCheck);
     }
 }

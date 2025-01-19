@@ -1,6 +1,7 @@
 package at.chess.chesssimulator.board;
 
 import at.chess.chesssimulator.piece.ChessPiece;
+import at.chess.chesssimulator.piece.enums.PieceColor;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -32,6 +33,9 @@ public class Position {
     /** Defines if a Position should show an indicator (ui only) */
     private boolean indicator;
 
+    /** Defines if a King (inside the position) is in check */
+    private boolean inCheck;
+
     /**e
      * Constructs a position with a specified row, column, and an optional chess piece.
      *
@@ -46,6 +50,7 @@ public class Position {
         this.occupied = piece != null;
         this.selected = false;
         this.indicator = false;
+        this.inCheck = false;
     }
 
     /**
@@ -73,7 +78,19 @@ public class Position {
      */
     @Override
     public String toString() {
-        String piece = this.piece != null ? "" + this.piece.getType().name().charAt(0) : "";
-        return piece + ((char)('a' + row)) + (col + 1);
+        return (char)('a' + row) + "" + (col + 1);
+    }
+
+    public boolean containsPiece() {
+        return piece != null;
+    }
+
+    public PieceColor getColor() {
+
+        if(piece == null) {
+            return null;
+        }
+
+        return piece.getColor();
     }
 }

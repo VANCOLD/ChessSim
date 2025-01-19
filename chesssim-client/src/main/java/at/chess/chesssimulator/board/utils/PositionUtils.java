@@ -148,7 +148,7 @@ public class PositionUtils {
 
         // Create a deep copy of the position
         Position copiedPosition = new Position(originalPosition.getRow(), originalPosition.getCol());
-        if (originalPosition.getPiece() != null) {
+        if (originalPosition.containsPiece()) {
             copiedPosition.setPiece(originalPosition.getPiece().clone());
         }
 

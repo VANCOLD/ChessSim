@@ -5,8 +5,6 @@ import at.chess.chesssimulator.board.Move;
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.utils.Directions;
 import at.chess.chesssimulator.board.utils.PositionUtils;
-import at.chess.chesssimulator.piece.movement.KingMovement;
-import at.chess.chesssimulator.piece.movement.RookMovement;
 
 public class KingCastelingCommand extends AbstractCommand {
 
@@ -23,8 +21,8 @@ public class KingCastelingCommand extends AbstractCommand {
         chessBoard.movePiece(move.getOriginalPosition(), kingPosition);
         Position rookPosition = PositionUtils.addVector(move.getOriginalPosition(), Directions.RIGHT.getVector());
         chessBoard.movePiece(move.getNewPosition(), rookPosition);
-        ((KingMovement) move.getOriginalPosition().getPiece().getMovementStrategy()).setFirstMove(false);
-        ((RookMovement)move.getNewPosition().getPiece().getMovementStrategy()).setFirstMove(false);
+        chessBoard.getPieceAt(rookPosition).setFirstMove(false);
+        chessBoard.getPieceAt(kingPosition).setFirstMove(false);
     }
 
     @Override
@@ -36,7 +34,7 @@ public class KingCastelingCommand extends AbstractCommand {
         chessBoard.movePiece(kingPosition, move.getOriginalPosition());
         Position rookPosition = PositionUtils.addVector(move.getOriginalPosition(), Directions.RIGHT.getVector());
         chessBoard.movePiece(rookPosition, move.getNewPosition());
-        ((KingMovement) move.getOriginalPosition().getPiece().getMovementStrategy()).setFirstMove(true);
-        ((RookMovement)move.getNewPosition().getPiece().getMovementStrategy()).setFirstMove(true);
+        chessBoard.getPieceAt(rookPosition).setFirstMove(true);
+        chessBoard.getPieceAt(kingPosition).setFirstMove(true);
     }
 }

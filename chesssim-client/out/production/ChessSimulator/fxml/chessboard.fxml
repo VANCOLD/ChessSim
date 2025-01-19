@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import at.chess.chesssimulator.board.ui.ChessBoardPane?>
+<?import javafx.scene.image.ImageView?>
+
+<?import javafx.scene.layout.Pane?>
+<Pane fx:id="container" xmlns:fx="http://javafx.com/fxml" fx:controller="at.chess.chesssimulator.controller.BoardController">
+    <ChessBoardPane fx:id="chessBoardPane"/>
+    <ImageView fx:id="draggedImage"/>
+</Pane >

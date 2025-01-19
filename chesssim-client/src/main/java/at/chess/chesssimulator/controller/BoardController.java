@@ -5,12 +5,13 @@ import at.chess.chesssimulator.board.Move;
 import at.chess.chesssimulator.board.Position;
 import at.chess.chesssimulator.board.enums.MoveType;
 import at.chess.chesssimulator.board.ui.ChessBoardPane;
+import at.chess.chesssimulator.controller.popup.WinPopup;
 import at.chess.chesssimulator.gamelogic.GameMaster;
 import at.chess.chesssimulator.gamelogic.Player;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.sound.SoundManager;
 import at.chess.chesssimulator.sound.SoundType;
-import at.chess.chesssimulator.utils.FmxlFiles;
+import at.chess.chesssimulator.utils.FxmlFiles;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -44,6 +45,8 @@ public class BoardController implements Player {
 
     @Setter
     private boolean onlyOnePlayer;
+    @Setter
+    private PieceColor myTurn;
 
     @FXML
     private Pane container;
@@ -84,30 +87,29 @@ public class BoardController implements Player {
         if(move.getMoveType() == MoveType.CHECKMATE) {
 
             soundManager.playSound(SoundType.getSound(move.getMoveType()));
-            this.endTurn();
+            gameMaster.endTurn();
             this.updateBoard();
             waitForConfirmation = false;
             this.mouseInputHandler.resetDrag();
-            resetInstance(); // resetting the chessboard
-            reloadChessBoard(); // reloading the chessboard for the movement generation
+            resetInstance();
+            reloadChessBoard();
 
             WinPopup winPopup = new WinPopup();
             WinPopup.ButtonChoice choice = winPopup.showWinPopup(turn, gameMaster.getCommandHistory());
 
             switch (choice) {
                 case REMATCH:
-                    MainController.loadStage(FmxlFiles.BOARD);
+                    MainController.loadStage(FxmlFiles.BOARD);
                     gameMaster.setChessBoard(ChessBoard.getInstance());
                     gameMaster.startGame();
                     this.updateBoard();
-                    System.out.println("Rematch started!");
                     break;
                 case CLOSE:
-                    MainController.loadStage(FmxlFiles.MAIN);
+                    MainController.loadStage(FxmlFiles.MAIN);
                     this.stage.close();
                     break;
                 default:
-                    System.out.println("Unknown choice");
+                    logger.info("Unknown choice");
             }
 
             return;
@@ -118,7 +120,7 @@ public class BoardController implements Player {
         } else {
             logger.info("Move made");
             soundManager.playSound(SoundType.getSound(move.getMoveType()));
-            this.endTurn();
+            gameMaster.endTurn();
         }
 
         gameMaster.resetTile();
@@ -126,10 +128,6 @@ public class BoardController implements Player {
         waitForConfirmation = false;
     }
 
-    @Override
-    public void endTurn() {
-        gameMaster.endTurn();
-    }
 
     @Override
     public void updateBoard() {
@@ -170,6 +168,12 @@ public class BoardController implements Player {
     private class MouseInputHandler {
 
         private void mousePressed(MouseEvent pressed) {
+
+            if(onlyOnePlayer && myTurn != turn) {
+                ignoreInput = true;
+                return;
+            }
+
             Position clickedPosition = getPositionFromMouseEvent(pressed);
             logger.info("Selected tile at position: {}", clickedPosition);
 

@@ -8,6 +8,5 @@ public interface Player {
     void notifyTurn(PieceColor turn);
     void receiveMoveResult(Move move);
     void updateBoard();
-    void endTurn();
-    void sendMove(Position originalPosition, Position newPosition);
+    void sendMove(Position origin, Position target);
 }

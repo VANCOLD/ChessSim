@@ -2,7 +2,7 @@ package at.chess.chesssimulator.gamelogic.command;
 
 import at.chess.chesssimulator.board.ChessBoard;
 import at.chess.chesssimulator.board.Move;
-import at.chess.chesssimulator.controller.PromotionPopup;
+import at.chess.chesssimulator.controller.popup.PromotionPopup;
 import at.chess.chesssimulator.piece.ChessPiece;
 import at.chess.chesssimulator.piece.enums.PieceType;
 

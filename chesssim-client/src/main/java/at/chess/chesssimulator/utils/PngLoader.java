@@ -98,7 +98,7 @@ public class PngLoader {
      * @return The image associated with the constructed key, or null if no image is found.
      */
     public Image getImage(String... arguments) {
-        logger.debug("Trying to get Image for key {}", String.join("_", arguments));
+        logger.debug("Trying to get Image for key {}", String.join("", arguments));
         return this.loadedImages.get(String.join("", arguments));
     }
 }

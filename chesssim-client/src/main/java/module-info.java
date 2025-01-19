@@ -20,4 +20,6 @@ module at.chess.chesssimulator {
     exports at.chess.chesssimulator.board.ui to javafx.fxml;
     opens at.chess.chesssimulator.board.ui to javafx.fxml;
     exports at.chess.chesssimulator.controller;
+    exports at.chess.chesssimulator.controller.popup;
+    opens at.chess.chesssimulator.controller.popup to javafx.fxml;
 }

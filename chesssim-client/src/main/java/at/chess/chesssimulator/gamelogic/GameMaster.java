@@ -31,6 +31,7 @@ public class GameMaster {
     private ChessBoard chessBoard;
     private Player blackPlayer;
     private Player whitePlayer;
+    @Getter
     private PieceColor turn = PieceColor.WHITE;
     @Getter
     private Stack<Command> commandHistory = new Stack<>();
@@ -49,9 +50,11 @@ public class GameMaster {
     }
 
     public void startGame() {
+
         this.blackPlayer.updateBoard();
         this.whitePlayer.updateBoard();
         this.turn = chessBoard.getTurn();
+
         if (turn == PieceColor.WHITE) {
             whitePlayer.notifyTurn(PieceColor.WHITE);
         } else {
@@ -107,8 +110,8 @@ public class GameMaster {
             case MOVE -> new MoveCommand(chessBoard, move);
             case CAPTURE -> new CaptureCommand(chessBoard, move);
             case PROMOTE -> new PromotionCommand(chessBoard, move);
-            case QCASTLING -> new QueenCastelingCommand(chessBoard, move);
-            case KCASTLING -> new KingCastelingCommand(chessBoard, move);
+            case QCASTLING -> new QueenCastlingCommand(chessBoard, move);
+            case KCASTLING -> new KingCastlingCommand(chessBoard, move);
             case CHECK -> new CheckCommand(chessBoard, move);
             case CHECKMATE -> new CheckmateCommand(chessBoard, move);
             default -> null;
@@ -205,6 +208,9 @@ public class GameMaster {
 
             makeMove(move);
             getActivePlayer().receiveMoveResult(move);
+            turn = PieceColor.getOppositeColor(turn);
+            chessBoard.setTurn(turn);
+            getActivePlayer().sendMove(originalPosition, newPosition);
        }
     }
 
@@ -250,4 +256,5 @@ public class GameMaster {
     public boolean isMyKing(Position clickedPosition) {
         return sameCoordinates(chessBoard.getKingPosition(turn), clickedPosition);
     }
+
 }

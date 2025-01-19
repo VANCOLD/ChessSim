@@ -1,9 +1,10 @@
 package at.chess.chesssimulator.board;
 
 import at.chess.chesssimulator.board.enums.MoveType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serializable;
 
 import static at.chess.chesssimulator.piece.enums.PieceType.PAWN;
 
@@ -22,7 +23,7 @@ import static at.chess.chesssimulator.piece.enums.PieceType.PAWN;
  */
 @Getter
 @Setter
-public class Move {
+public class Move implements Serializable {
 
     /** The original position of the piece before the move. */
     Position originalPosition;
@@ -36,53 +37,66 @@ public class Move {
     /** Extra data for the move (e.g., promotion piece for pawn promotion). */
     String extraData;
 
-
+    /**
+     * Constructs a new move with the specified original position, new position, and move type.
+     * The extra data is set to an empty string by default.
+     *
+     *
+     * @param originalPosition The original position of the piece.
+     * @param newPosition The new position of the piece.
+     * @param moveType The type of move being made.
+     */
     public Move(Position originalPosition, Position newPosition, MoveType moveType) {
         this.originalPosition = originalPosition;
         this.newPosition = newPosition;
         this.moveType = moveType;
     }
 
+    /**
+     * String representation of the move in algebraic notation.
+     * This method returns the move in standard algebraic notation, including special cases like castling and pawn promotion
+     *
+     * @return The string representation of the move in algebraic notation.
+     */
     @Override
     public String toString() {
-        // If the move is castling (kingside or queenside)
+
         if (this.moveType == MoveType.KCASTLING) {
-            return "0-0"; // Kingside castling notation
+            return "0-0";
         }
         if (this.moveType == MoveType.QCASTLING) {
-            return "0-0-0"; // Queenside castling notation
+            return "0-0-0";
         }
 
-        // If it's a pawn move
         if (originalPosition.getPiece().getType() == PAWN) {
-            // If it's a regular pawn move (no capture)
+
             if (this.moveType == MoveType.MOVE) {
-                return newPosition.toString(); // Just the destination for a pawn move
+                return newPosition.toString();
             }
-            // If it's a pawn capture
+
             if (this.moveType == MoveType.CAPTURE) {
                 return originalPosition.toString().charAt(0) + "x" + newPosition.toString(); // Capture notation (e.g., exd5)
             }
-            // If it's a pawn promotion
+
             if (this.moveType == MoveType.PROMOTE) {
                 return newPosition.toString() + "=" + extraData; // Pawn promotion
             }
         }
 
-        // For all other pieces (non-pawn moves)
+
         String piece = "";
         switch (originalPosition.getPiece().getType()) {
             case KING:
-                piece = "K"; // King
+                piece = "K";
                 break;
             case QUEEN:
-                piece = "Q"; // Queen
+                piece = "Q";
                 break;
             case ROOK:
-                piece = "R"; // Rook
+                piece = "R";
                 break;
             case BISHOP:
-                piece = "B"; // Bishop
+                piece = "B";
                 break;
             case KNIGHT:
                 piece = "N"; // Knight (explicitly using "N" to avoid confusion with King)
@@ -91,27 +105,22 @@ public class Move {
                 break;
         }
 
-        // If it's a capture move (non-pawn)
         if (this.moveType == MoveType.CAPTURE) {
             return piece + "x" + newPosition.toString(); // Regular capture move
         }
 
-        // If it's a regular move (non-pawn)
         if (this.moveType == MoveType.MOVE) {
             return piece + newPosition.toString(); // Regular move notation
         }
 
-        // If it's a check move
         if (this.moveType == MoveType.CHECK) {
             return piece + newPosition.toString() + "+"; // Check notation
         }
 
-        // If it's a checkmate move
         if (this.moveType == MoveType.CHECKMATE) {
             return piece + newPosition.toString() + "#"; // Checkmate notation
         }
 
-        // Default case (shouldn't happen unless the moveType is undefined)
         return "";
     }
 }

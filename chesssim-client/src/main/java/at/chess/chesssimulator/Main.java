@@ -1,6 +1,6 @@
 package at.chess.chesssimulator;
 
-import at.chess.chesssimulator.utils.FmxlFiles;
+import at.chess.chesssimulator.utils.FxmlFiles;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -17,7 +17,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception {
 
         printLogoAndVersion();
-        Parent root = FXMLLoader.load(FmxlFiles.MAIN.getFile());
+        Parent root = FXMLLoader.load(FxmlFiles.MAIN.getFile());
         primaryStage.setTitle("Chessboard Application");
         primaryStage.setScene(new Scene(root));
         primaryStage.setResizable(false);

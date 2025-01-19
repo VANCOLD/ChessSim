@@ -14,12 +14,12 @@ public class QueenMovementStrategy extends AbstractStrategy {
         List<Position> possiblePositions = new ArrayList<>();
 
         // Add straight-line moves
-        // choosing either left / up or down and right is fine, it will check each direction anyways with 1 call
+        // choosing either left / up or down and right is fine, it will check each direction anyway with 1 call
         RookMovementStrategy.addStraightLineMoves(possiblePositions, curPos, LEFT);
         RookMovementStrategy.addStraightLineMoves(possiblePositions, curPos, UP);
 
         // Add diagonal moves
-        // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyways with 1 call
+        // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyway with 1 call
         BishopMovementStrategy.addDiagonalMoves(possiblePositions, curPos, UP_LEFT);
         BishopMovementStrategy.addDiagonalMoves(possiblePositions, curPos, UP_RIGHT);
 

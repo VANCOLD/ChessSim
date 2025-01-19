@@ -1,10 +1,16 @@
+package managament;
+
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Setter
 public class GameRoom {
+
+
 
     private String roomName;
     private List<Player> players;
@@ -18,7 +24,8 @@ public class GameRoom {
         players.add(player);
     }
 
-    public boolean isFull() {
-        return players.size() >= 2;
+    public void removePlayer(Player player) {
+        players.remove(player);
     }
+
 }

@@ -33,10 +33,28 @@ public enum PieceColor {
         };
     }
 
+    /**
+     * Returns the opposite color of the provided color.
+     * <p>
+     *     For example, the opposite of {@link #BLACK} is {@link #WHITE}, and vice versa.
+     *     If an invalid color is provided, an {@link IllegalArgumentException} is thrown.
+     * </p>
+     *
+     * @param color The color for which to find the opposite.
+     * @return The opposite color.
+     */
     public static PieceColor getOppositeColor(PieceColor color) {
         return switch(color) {
             case BLACK -> WHITE;
             case WHITE -> BLACK;
+        };
+    }
+
+    public static PieceColor getColorFromName(String colorName) {
+        return switch(colorName) {
+            case "BLACK" -> BLACK;
+            case "WHITE" -> WHITE;
+            default -> throw new IllegalStateException("Unexpected value: " + colorName);
         };
     }
 }

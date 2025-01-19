@@ -19,7 +19,7 @@ public class RookMovementStrategy extends AbstractStrategy {
     public List<Position> getPossibleMoves(Position curPos) {
 
         List<Position> possiblePositions = new ArrayList<>();
-        // choosing either left / up or down and right is fine, it will check each direction anyways with 1 call
+        // choosing either left / up or down and right is fine, it will check each direction anyway with 1 call
         addStraightLineMoves(possiblePositions, curPos, LEFT);
         addStraightLineMoves(possiblePositions, curPos, UP);
 

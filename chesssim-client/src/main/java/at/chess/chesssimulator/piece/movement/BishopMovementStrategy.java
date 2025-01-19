@@ -15,7 +15,7 @@ public class BishopMovementStrategy extends AbstractStrategy {
     public List<Position> getPossibleMoves(Position curPos) {
 
         List<Position> possiblePositions = new ArrayList<>();
-        // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyways with 1 call
+        // choosing either up_left / down_right or down_left and up_right is fine, it will check each direction anyway with 1 call
         addDiagonalMoves(possiblePositions, curPos, UP_LEFT);
         addDiagonalMoves(possiblePositions, curPos, UP_RIGHT);
 

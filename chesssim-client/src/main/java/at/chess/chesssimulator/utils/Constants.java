@@ -1,8 +1,5 @@
 package at.chess.chesssimulator.utils;
 
-import java.net.URL;
-import java.util.HashMap;
-
 /**
  * A utility class that contains constant values used throughout the chess simulator application.
  * <p>
@@ -36,7 +33,7 @@ public class Constants {
      * The path does denote the location of the fxml files in the project.
      * </p>
      */
-    public static final String FMXL_PATH = "/fxml/";
+    public static final String FXML_PATH = "/fxml/";
 
     /**
      * The path to the default layout CSV file for the chessboard configuration.

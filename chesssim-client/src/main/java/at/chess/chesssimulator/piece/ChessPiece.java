@@ -1,10 +1,7 @@
 package at.chess.chesssimulator.piece;
 
-import at.chess.chesssimulator.board.Position;
-import at.chess.chesssimulator.board.ui.ChessBoardTilePane;
 import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.piece.enums.PieceType;
-import at.chess.chesssimulator.piece.movement.*;
 import at.chess.chesssimulator.utils.PngLoader;
 import javafx.scene.image.Image;
 import lombok.Getter;
@@ -12,7 +9,6 @@ import lombok.Setter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 
 /**
  * Represents a chess piece on the chessboard, encapsulating its color, type, movement strategy, and visual representation.
@@ -34,7 +30,7 @@ public class ChessPiece implements Cloneable {
     /** The type of the chess piece (e.g., pawn, rook, etc.). */
     private final PieceType type;
 
-    /** Defines if a piece has taken a move (needed for casteling / pawn double move). */
+    /** Defines if a piece has taken a move (needed for castling / pawn double move). */
     @Setter
     private boolean firstMove;
 

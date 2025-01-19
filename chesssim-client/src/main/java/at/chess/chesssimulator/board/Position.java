@@ -81,16 +81,35 @@ public class Position {
         return (char)('a' + row) + "" + (col + 1);
     }
 
+    /**
+     * Checks if the position contains a chess piece.
+     * <p>
+     *     This method returns {@code true} if the position contains a chess piece, and {@code false} otherwise.
+     *     A position is considered to contain a piece if the {@link #piece} field is not {@code null}.
+     *     This method is useful for checking if a position is empty or occupied.
+     * </p>
+     *
+     * @return {@code true} if the position contains a chess piece; {@code false} otherwise.
+     */
     public boolean containsPiece() {
         return piece != null;
     }
 
+    /**
+     * Returns the color of the chess piece occupying this position.
+     * <p>
+     *     If the position is empty, this method returns {@code null}.
+     *     Otherwise, it returns the color of the chess piece occupying the position.
+     *     This method is useful for determining the color of a piece on the board.
+     * </p>
+     *
+     * @return The color of the chess piece occupying this position, or {@code null} if the position is empty.
+     */
     public PieceColor getColor() {
 
         if(piece == null) {
             return null;
         }
-
         return piece.getColor();
     }
 }

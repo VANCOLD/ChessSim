@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import at.chess.chesssimulator.board.ui.ChessBoardPane?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+
+<Pane fx:id="container" xmlns:fx="http://javafx.com/fxml" fx:controller="at.chess.chesssimulator.controller.BoardController">
+
+    <VBox spacing="10">
+
+        <ChessBoardPane fx:id="chessBoardPane" />
+
+        <HBox alignment="CENTER_RIGHT" spacing="10" prefHeight="50">
+            <Button text="Undo" onAction="#handleUndo"/>
+            <Button text="Quit Game" onAction="#handleQuit"/>
+        </HBox>
+    </VBox>
+
+    <!-- Image view for dragged piece (if needed) -->
+    <ImageView fx:id="draggedImage"/>
+</Pane>

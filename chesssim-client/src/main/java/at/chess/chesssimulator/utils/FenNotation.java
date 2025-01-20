@@ -22,7 +22,7 @@ public class FenNotation {
     protected static final Logger logger = LoggerFactory.getLogger(FenNotation.class);
 
     /**
-     * The chessboard represented as an 8x8 array of {@link ChessPiece}.
+     * The chessboard represented as 8x8 array of {@link ChessPiece}.
      */
     private ChessPiece[][] board;
 

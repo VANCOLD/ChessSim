@@ -64,8 +64,8 @@ public class PawnMovementStrategy extends AbstractStrategy {
         ChessPiece piece = chessBoard.getPieceAt(currentPosition);
         logger.info("Piece: {} Color: {}", piece.getType(), piece.getColor());
         logger.info("New Position: {}; col: {}", newPosition, newPosition.getCol());
-        boolean canPromote = (newPosition.getCol() == ChessBoardConfig.getCols() && piece.getColor() == WHITE)
-                             || (newPosition.getCol() == ChessBoardConfig.getRows()  && piece.getColor() == BLACK);
+        boolean canPromote = (newPosition.getCol() == 0 && piece.getColor() == WHITE)
+                             || (newPosition.getCol() == ChessBoardConfig.getRows() - 1  && piece.getColor() == BLACK);
         return canPromote;
     }
 }

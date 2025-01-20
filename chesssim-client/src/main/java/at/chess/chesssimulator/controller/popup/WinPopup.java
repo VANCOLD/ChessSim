@@ -73,9 +73,7 @@ public class WinPopup {
         Scene scene = new Scene(vbox, 300, 200);
         popup.setScene(scene);
 
-        popup.setOnCloseRequest(event -> {
-            handleButtonChoice(ButtonChoice.CLOSE);
-        });
+        popup.setOnCloseRequest(event -> handleButtonChoice(ButtonChoice.CLOSE));
 
         popup.showAndWait();
 

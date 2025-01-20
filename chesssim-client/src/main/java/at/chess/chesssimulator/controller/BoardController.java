@@ -12,6 +12,7 @@ import at.chess.chesssimulator.piece.enums.PieceColor;
 import at.chess.chesssimulator.sound.SoundManager;
 import at.chess.chesssimulator.sound.SoundType;
 import at.chess.chesssimulator.utils.FxmlFiles;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -39,14 +40,21 @@ public class BoardController implements Player {
 
     @Getter
     private Position selectedPosition;
+
     private boolean ignoreInput;
+
     private PieceColor turn;
+
     private MouseInputHandler mouseInputHandler;
 
     @Setter
     private boolean onlyOnePlayer;
+
     @Setter
     private PieceColor myTurn;
+
+    @Setter
+    private Stage stage;
 
     @FXML
     private Pane container;
@@ -54,15 +62,29 @@ public class BoardController implements Player {
     private ImageView draggedImage;
     @FXML
     private ChessBoardPane chessBoardPane;
+
     private boolean waitForConfirmation;
-    @Setter
-    private Stage stage;
+
 
     @FXML
     public void initialize() {
         soundManager = SoundManager.getInstance();
         setMouseHandlers();
         soundManager.playSound(SoundType.GAME_START);
+    }
+
+    public void handleQuit(ActionEvent event) {
+        resetInstance();
+        reloadChessBoard();
+        MainController.loadStage(FxmlFiles.MAIN);
+        this.stage.close();
+    }
+
+    public void handleUndo(ActionEvent event) {
+        if (waitForConfirmation) {
+            return;
+        }
+        gameMaster.undoMove();
     }
 
     private void setMouseHandlers() {
@@ -93,7 +115,6 @@ public class BoardController implements Player {
             this.mouseInputHandler.resetDrag();
             resetInstance();
             reloadChessBoard();
-
             WinPopup winPopup = new WinPopup();
             WinPopup.ButtonChoice choice = winPopup.showWinPopup(turn, gameMaster.getCommandHistory());
 
@@ -163,7 +184,6 @@ public class BoardController implements Player {
         waitForConfirmation = true;
         gameMaster.processInput(originalPosition, newPosition);
     }
-
 
     private class MouseInputHandler {
 

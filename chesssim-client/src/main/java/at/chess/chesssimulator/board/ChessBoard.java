@@ -269,7 +269,8 @@ public class ChessBoard {
     public void setCheck(boolean inCheck) {
         this.inCheck = inCheck;
         PieceColor playerInCheck = PieceColor.getOppositeColor(turn);
-        this.getKingPosition(playerInCheck).setInCheck(inCheck);
+        Position kingPos = this.getKingPosition(playerInCheck);
+        board[kingPos.getRow()][kingPos.getCol()].setInCheck(inCheck);
     }
 
     /**

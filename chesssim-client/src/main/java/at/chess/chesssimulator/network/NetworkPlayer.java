@@ -74,15 +74,6 @@ public class NetworkPlayer implements Player {
 
                 if (move.getMoveType() != null) {
                     logger.info("Move Type: {}", move.getMoveType());
-
-                    switch (move.getMoveType()) {
-                        case MOVE:
-                            break;
-                        case CAPTURE:
-                            break;
-                        default:
-                            break;
-                    }
                 }
 
                 Platform.runLater(() -> this.receiveMoveResult(move));

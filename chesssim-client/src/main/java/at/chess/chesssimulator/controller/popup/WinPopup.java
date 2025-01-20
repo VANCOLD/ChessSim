@@ -74,7 +74,6 @@ public class WinPopup {
         popup.setScene(scene);
 
         popup.setOnCloseRequest(event -> handleButtonChoice(ButtonChoice.CLOSE));
-
         popup.showAndWait();
 
         return getButtonChoice();

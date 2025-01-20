@@ -65,7 +65,6 @@ public class BoardController implements Player {
 
     private boolean waitForConfirmation;
 
-
     @FXML
     public void initialize() {
         soundManager = SoundManager.getInstance();
@@ -115,6 +114,7 @@ public class BoardController implements Player {
             this.mouseInputHandler.resetDrag();
             resetInstance();
             reloadChessBoard();
+
             WinPopup winPopup = new WinPopup();
             WinPopup.ButtonChoice choice = winPopup.showWinPopup(turn, gameMaster.getCommandHistory());
 

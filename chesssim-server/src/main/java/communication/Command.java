@@ -3,6 +3,7 @@ package communication;
 import lombok.Getter;
 import lombok.Setter;
 
+
 /**
  * Represents a command with a specific type and an associated message.
  * <p>

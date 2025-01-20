@@ -213,7 +213,6 @@ public class GameMaster {
 
         } else if (getStrategy(piece.getType()).canCapture(originalPosition, newPosition)) {
             move = new Move(originalPosition, newPosition, MoveType.CAPTURE);
-
         } else if (getStrategy(piece.getType()).canMove(originalPosition, newPosition)) {
 
             if (isCheckmate(originalPosition.getPiece(), newPosition)) {
@@ -230,7 +229,6 @@ public class GameMaster {
 
 
         if (move.getMoveType() != MoveType.INVALID) {
-
             makeMove(move);
             getActivePlayer().receiveMoveResult(move);
        }
@@ -295,5 +293,4 @@ public class GameMaster {
         endTurn();
 
     }
-
 }

@@ -17,10 +17,8 @@ import javafx.stage.Stage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.net.Socket;
 
 import static at.chess.chesssimulator.utils.AlertUtil.showError;
 
@@ -116,35 +114,33 @@ public class MainController {
             if (connected) {
                 networkPlayer.sendCommand("HOST_GAME");
 
-                networkPlayer.waitingForGameStart(waitingAlert, (PieceColor assignedColor) -> {
-                    Platform.runLater(() -> {
-                        try {
-                            FXMLLoader loader = new FXMLLoader(FxmlFiles.BOARD.getFile());
-                            Parent newRoot = loader.load();
+                networkPlayer.waitingForGameStart(waitingAlert, (PieceColor assignedColor) -> Platform.runLater(() -> {
+                    try {
+                        FXMLLoader loader = new FXMLLoader(FxmlFiles.BOARD.getFile());
+                        Parent newRoot = loader.load();
 
-                            Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
-                            Scene scene = new Scene(newRoot);
-                            stage.setScene(scene);
-                            stage.setTitle("Online Play - " + username);
+                        Stage stage = (Stage) ((javafx.scene.Node) event.getSource()).getScene().getWindow();
+                        Scene scene = new Scene(newRoot);
+                        stage.setScene(scene);
+                        stage.setTitle("Online Play - " + username);
 
-                            BoardController boardController = loader.getController();
-                            GameMaster gameMaster = new GameMaster(boardController, networkPlayer);
-                            boardController.setGameMaster(gameMaster);
-                            boardController.setOnlyOnePlayer(true);
-                            boardController.setStage(stage);
-                            boardController.setMyTurn(assignedColor);
+                        BoardController boardController = loader.getController();
+                        GameMaster gameMaster = new GameMaster(boardController, networkPlayer);
+                        boardController.setGameMaster(gameMaster);
+                        boardController.setOnlyOnePlayer(true);
+                        boardController.setStage(stage);
+                        boardController.setMyTurn(assignedColor);
 
-                            networkPlayer.setGameMaster(gameMaster);
+                        networkPlayer.setGameMaster(gameMaster);
 
-                            gameMaster.startGame();
+                        gameMaster.startGame();
 
-                            stage.show();
-                        } catch (IOException e) {
-                            logger.error("Error loading the board: {}", e.getMessage());
-                            showError("Error", "Failed to load the chessboard.");
-                        }
-                    });
-                });
+                        stage.show();
+                    } catch (IOException e) {
+                        logger.error("Error loading the board: {}", e.getMessage());
+                        showError("Error", "Failed to load the chessboard.");
+                    }
+                }));
             } else {
                 Platform.runLater(() -> {
                     waitingAlert.close();

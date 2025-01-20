@@ -16,6 +16,7 @@ public class MoveCommand extends AbstractCommand {
 
     @Override
     public void undo() {
-        chessBoard.movePiece(move.getNewPosition(), move.getOriginalPosition());
+        chessBoard.clearPosition(move.getNewPosition());
+        chessBoard.placePiece(move.getOriginalPosition(), move.getOriginalPosition().getPiece());
     }
 }

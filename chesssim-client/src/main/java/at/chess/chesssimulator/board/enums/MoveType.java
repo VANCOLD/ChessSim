@@ -11,8 +11,8 @@ import lombok.Getter;
  *   <li><b>MOVE</b>: A regular move, represented by an empty string ("").</li>
  *   <li><b>CAPTURE</b>: A capture move, represented by "x".</li>
  *   <li><b>CHECK</b>: A move that places the opponent's king in check, represented by "+".</li>
- *   <li><b>KCASTLING</b>: Kingside castling, represented by "0-0".</li>
- *   <li><b>QCASTLING</b>: Queenside castling, represented by "0-0-0".</li>
+ *   <li><b>KCASTLING</b>: King-side castling, represented by "0-0".</li>
+ *   <li><b>QCASTLING</b>: Queen-side castling, represented by "0-0-0".</li>
  *   <li><b>PROMOTE</b>: Pawn promotion, represented by "/".</li>
  *   <li><b>INVALID</b>: An invalid move, represented by an empty string ("").</li>
  *   <li><b>CHECKMATE</b>: A move that places the opponent's king in checkmate, represented by "#".</li>
@@ -37,10 +37,10 @@ public enum MoveType {
     /** A move that places the opponent's king in check, represented by "+". */
     CHECK("+"),
 
-    /** Kingside castling, represented by "0-0". */
+    /** King-side castling, represented by "0-0". */
     KCASTLING("0-0"),
 
-    /** Queenside castling, represented by "0-0-0". */
+    /** Queen-side castling, represented by "0-0-0". */
     QCASTLING("0-0-0"),
 
     /** Pawn promotion, represented by "/". */

@@ -34,7 +34,7 @@ public class QueenCastlingCommand extends AbstractCommand {
         chessBoard.movePiece(kingPosition, move.getOriginalPosition());
         Position rookPosition = PositionUtils.addVector(move.getOriginalPosition(), Directions.LEFT.getVector());
         chessBoard.movePiece(rookPosition, move.getNewPosition());
-        chessBoard.getPieceAt(rookPosition).setFirstMove(true);
-        chessBoard.getPieceAt(kingPosition).setFirstMove(true);
+        chessBoard.getPieceAt(move.getOriginalPosition()).setFirstMove(true);
+        chessBoard.getPieceAt(move.getNewPosition()).setFirstMove(true);
     }
 }

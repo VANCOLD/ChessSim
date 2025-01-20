@@ -178,13 +178,39 @@ public class GameMaster {
 
             KingMovementStrategy kingStrategy = (KingMovementStrategy) getStrategy(KING);
 
-            if( kingStrategy.canQueenSideCastle(newPosition) ) {
+            if (kingStrategy.canQueenSideCastle(newPosition)) {
                 move = new Move(originalPosition, newPosition, MoveType.QCASTLING);
-            } else if( kingStrategy.canKingSideCastle(newPosition) ) {
+            } else if (kingStrategy.canKingSideCastle(newPosition)) {
                 move = new Move(originalPosition, newPosition, MoveType.KCASTLING);
             } else {
                 move = new Move(originalPosition, newPosition, MoveType.MOVE);
             }
+
+        } else if (piece.getType() == PieceType.PAWN) {
+
+            PawnMovementStrategy pawnStrategy = (PawnMovementStrategy) getStrategy(piece.getType());
+
+            // Check for pawn promotion first
+            if (pawnStrategy.canPromote(originalPosition, newPosition)) {
+                move = new Move(originalPosition, newPosition, MoveType.PROMOTE);
+            } else if (getStrategy(piece.getType()).canCapture(originalPosition, newPosition)) {
+                move = new Move(originalPosition, newPosition, MoveType.CAPTURE);
+
+                // Check if the capture results in a check
+                if (isCheck(piece, newPosition)) {
+                    move = new Move(originalPosition, newPosition, MoveType.CHECK);
+                }
+
+            } else if (getStrategy(piece.getType()).canMove(originalPosition, newPosition)) {
+
+                // Check if the pawn is moving diagonally and checking the king
+                if (isCheck(piece, newPosition)) {
+                    move = new Move(originalPosition, newPosition, MoveType.CHECK);
+                } else {
+                    move = new Move(originalPosition, newPosition, MoveType.MOVE);
+                }
+            }
+
         } else if (getStrategy(piece.getType()).canCapture(originalPosition, newPosition)) {
             move = new Move(originalPosition, newPosition, MoveType.CAPTURE);
         } else if (getStrategy(piece.getType()).canMove(originalPosition, newPosition)) {
@@ -192,9 +218,7 @@ public class GameMaster {
             if (isCheckmate(originalPosition.getPiece(), newPosition)) {
                 move = new Move(originalPosition, newPosition, MoveType.CHECKMATE);
             } else if (isCheck(originalPosition.getPiece(), newPosition)) {
-                move = new Move(originalPosition, newPosition, CHECK);
-            } else if ( piece.getType() == PieceType.PAWN && ((PawnMovementStrategy) getStrategy(piece.getType())).canPromote( originalPosition, newPosition) ) {
-                    move = new Move(originalPosition, newPosition, MoveType.PROMOTE);
+                move = new Move(originalPosition, newPosition, MoveType.CHECK);
             } else {
                 move = new Move(originalPosition, newPosition, MoveType.MOVE);
             }
@@ -205,12 +229,8 @@ public class GameMaster {
 
 
         if (move.getMoveType() != MoveType.INVALID) {
-
             makeMove(move);
             getActivePlayer().receiveMoveResult(move);
-            turn = PieceColor.getOppositeColor(turn);
-            chessBoard.setTurn(turn);
-            getActivePlayer().sendMove(originalPosition, newPosition);
        }
     }
 
@@ -257,4 +277,20 @@ public class GameMaster {
         return sameCoordinates(chessBoard.getKingPosition(turn), clickedPosition);
     }
 
+    public void undoMove() {
+        if (commandHistory.isEmpty()) {
+            return;
+        }
+
+        Command command = commandHistory.pop();
+        command.undo();
+
+        if (command instanceof CheckCommand) {
+            this.inCheck = false;
+            chessBoard.setInCheck(false);
+        }
+        getActivePlayer().updateBoard();
+        endTurn();
+
+    }
 }

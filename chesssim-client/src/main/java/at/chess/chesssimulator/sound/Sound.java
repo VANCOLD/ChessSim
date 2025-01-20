@@ -21,7 +21,7 @@ public class Sound {
     /**
      * Constructs a new {@code Sound} object by loading the sound file at the specified path.
      *
-     * @param soundPath The relative path to the sound file within the resources folder.
+     * @param soundPath The relative path to the sound file within the resource folder.
      * @throws NullPointerException if the sound file is not found at the specified path.
      */
     public Sound(String soundPath) {

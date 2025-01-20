@@ -21,7 +21,7 @@ public class PromotionCommand extends AbstractCommand {
         promotionPopup.setInitialState(pawn.getColor());
         String selectedPiece = promotionPopup.showPromotionPopup();
 
-        char pieceType = selectedPiece.toLowerCase().charAt(0);
+        char pieceType = selectedPiece.equals("Knight") ? selectedPiece.toLowerCase().charAt(1) : selectedPiece.toLowerCase().charAt(0);
         ChessPiece piece = ChessPiece.generateChessPiece(pawn.getColor(), PieceType.getPieceType(pieceType));
         chessBoard.clearPosition(move.getOriginalPosition());
         chessBoard.placePiece(move.getNewPosition(), piece);
@@ -32,6 +32,7 @@ public class PromotionCommand extends AbstractCommand {
     @Override
     public void undo() {
         chessBoard.clearPosition(move.getNewPosition());
+        chessBoard.placePiece(move.getNewPosition(), move.getNewPosition().getPiece());
         chessBoard.placePiece(move.getOriginalPosition(), move.getOriginalPosition().getPiece());
     }
 }
